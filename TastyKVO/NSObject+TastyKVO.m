@@ -15,7 +15,11 @@
 #import <objc/runtime.h>
 
 
+/**
+ * Instances of this class are going to be the actual observers.
+ */
 @interface TastyObserverTrampoline: NSObject {
+@private
     __weak id _observer;
     __weak id _target;
     NSString *_keyPath;
@@ -35,19 +39,25 @@
 
 @end
 
-static NSString *const TastyObserverTrampolineContext = @"TastyObserverTrampolineContext";
+static NSString *const kTastyObserverTrampolineContext =
+                                            @"TastyObserverTrampolineContext";
 
 @implementation TastyObserverTrampoline
 
 @synthesize block = _block, selector = _selector;
 
-- (id)initWithObserver:(id)observer target:(id)target keyPath:(NSString *)keyPath
+- (id)initWithObserver:(id)observer
+                target:(id)target
+               keyPath:(NSString *)keyPath
 {
     if ((self = [super init])) {
         _observer = observer;
         _target = target;
         _keyPath = [keyPath copy];
-        [target addObserver:self forKeyPath:keyPath options:0 context:TastyObserverTrampolineContext];
+        [target addObserver:self
+                 forKeyPath:keyPath
+                    options:0
+                    context:kTastyObserverTrampolineContext];
     }
     return self;
 }
@@ -60,16 +70,22 @@ static NSString *const TastyObserverTrampolineContext = @"TastyObserverTrampolin
     [super dealloc];
 }
 
-- (void)observeValueForKeyPath:(NSString *)aKeyPath ofObject:(id)object change:(NSDictionary *)change context:(void *)context
+- (void)observeValueForKeyPath:(NSString *)keyPath
+                      ofObject:(id)object
+                        change:(NSDictionary *)change
+                       context:(void *)context
 {
-    NSAssert(context == TastyObserverTrampolineContext, @"TastyObserverTrampoline got assigned as an observer without the context."
-                                                         " This must be some hack on part of the user");
+    NSAssert(context == kTastyObserverTrampolineContext,
+             @"%@ was registered as an observer with incorrect context."
+              " This must be some tricky hack on part of the user", self);
     if (_block)
         _block(_observer, _target, change);
     else if (_selector)
-        [_observer performSelector:_selector withObject:_target withObject:change];
+        [_observer performSelector:_selector
+                        withObject:_target
+                        withObject:change];
     else
-        NSAssert(0, @"No block nor selector provided for TastyObserverTrampoline.");
+        NSAssert(0, @"No block nor selector provided for %@.", self);
 }
 
 - (void)stopObserving
@@ -82,32 +98,45 @@ static NSString *const TastyObserverTrampolineContext = @"TastyObserverTrampolin
 
 @end
 
+#pragma mark - The main category implementation
 
-static NSString *const TastyObserverKey = @"org.tastyobserver.associatedDictKey";
-
-static dispatch_queue_t _mutation_queue()
+static dispatch_queue_t _lock_queue()
 {
-    static dispatch_queue_t mutation_queue = NULL;
-    static dispatch_once_t queue_predicate = 0;
-    dispatch_once(&queue_predicate, ^{
-        mutation_queue = dispatch_queue_create("org.tastyobserver.observerMutationQueue", 0);
+    static dispatch_queue_t lock_queue = NULL;
+    static dispatch_once_t creation_predicate = 0;
+    dispatch_once(&creation_predicate, ^{
+        lock_queue = dispatch_queue_create(
+            "org.tastykvo.lockQueue", 0);
     });
-    return mutation_queue;
+    return lock_queue;
 }
+
+static NSString *const kTastyKVOAssociatedDictKey =
+                                            @"org.tastykvo.associatedDictKey";
 
 @implementation NSObject(TastyKVOExtension)
 
 /**
- * This method must be used inside the dispatch_sync invocation
-**/
-- (TastyObserverTrampoline *)_trampolineForObserver:(id)observer keyPath:(NSString *)keyPath
+ * This method shall only be called inside dispatch_sync
+ */
+- (TastyObserverTrampoline *)_trampolineForObserver:(id)observer
+                                            keyPath:(NSString *)keyPath
 {
-    NSMutableDictionary *dict = objc_getAssociatedObject(self, TastyObserverKey);
+    // This dictionary is used to store the 'paths' dictionary which, in turn,
+    // stored the mapping from observer to its associated trampolines.
+    NSMutableDictionary *dict =
+                   objc_getAssociatedObject(self, kTastyKVOAssociatedDictKey);
     if (dict == nil) {
         dict = [[NSMutableDictionary alloc] init];
-        objc_setAssociatedObject(self, TastyObserverKey, dict, OBJC_ASSOCIATION_RETAIN);
+        objc_setAssociatedObject(self,
+                                 kTastyKVOAssociatedDictKey,
+                                 dict,
+                                 OBJC_ASSOCIATION_RETAIN);
         [dict release];
     }
+
+    // For each key path the observer is registered for, there will be one
+    // TastyObserverTrampoline instance in the 'paths' dict.
     NSValue *ptr = [NSValue valueWithPointer:observer];
     NSMutableDictionary *paths = [dict objectForKey:ptr];
     if (paths == nil) {
@@ -116,34 +145,39 @@ static dispatch_queue_t _mutation_queue()
         [paths release];
     }
     TastyObserverTrampoline *trampoline =
-        [[TastyObserverTrampoline alloc] initWithObserver:observer
-                                                   target:self
-                                                  keyPath:keyPath];
+        [[TastyObserverTrampoline alloc]
+            initWithObserver:observer target:self keyPath:keyPath];
     [paths setObject:trampoline forKey:keyPath];
     [trampoline release];
 
     return trampoline;
 }
 
-- (void)addTastyObserver:(id)observer forKeyPath:(NSString *)multiKeyPath withSelector:(SEL)selector
+#pragma mark - Adding observers
+
+- (void)addTastyObserver:(id)observer
+              forKeyPath:(NSString *)multiKeyPath
+            withSelector:(SEL)selector
 {
-    dispatch_sync(_mutation_queue(), ^{
+    dispatch_sync(_lock_queue(), ^{
         NSArray *keys = [multiKeyPath componentsSeparatedByString:@"|"];
         for (NSString *key in keys) {
-            TastyObserverTrampoline *trampoline = [self _trampolineForObserver:observer
-                                                                       keyPath:key];
+            TastyObserverTrampoline *trampoline =
+                           [self _trampolineForObserver:observer keyPath:key];
             trampoline.selector = selector;
         }
     });
 }
 
-- (void)addTastyObserver:(id)observer forKeyPath:(NSString *)multiKeyPath withBlock:(TastyBlock)block
+- (void)addTastyObserver:(id)observer
+              forKeyPath:(NSString *)multiKeyPath
+               withBlock:(TastyBlock)block
 {
-    dispatch_sync(_mutation_queue(), ^{
+    dispatch_sync(_lock_queue(), ^{
         NSArray *keys = [multiKeyPath componentsSeparatedByString:@"|"];
         for (NSString *key in keys) {
-            TastyObserverTrampoline *trampoline = [self _trampolineForObserver:observer
-                                                                       keyPath:key];
+            TastyObserverTrampoline *trampoline =
+                           [self _trampolineForObserver:observer keyPath:key];
             trampoline.block = block;
         }
     });
@@ -156,20 +190,30 @@ static dispatch_queue_t _mutation_queue()
     NSString *multiKey = firstKey;
     while (multiKey) {
         unichar typeChar = [multiKey characterAtIndex:0];
-        NSAssert(typeChar == ':' || typeChar == '?', @"Each multi-key must have a type encoding");
+        NSAssert(typeChar == ':' || typeChar == '?',
+                 @"Each multi-key must have a type encoding");
 
-        NSArray *keys = [[multiKey substringFromIndex:1] componentsSeparatedByString:@"|"];
+        NSArray *keys = [[multiKey substringFromIndex:1]
+                                            componentsSeparatedByString:@"|"];
         BOOL isBlock = (typeChar == '?');
         if (isBlock) {
             TastyBlock block = va_arg(args, typeof(block));
-            NSAssert([block isKindOfClass:[NSObject class]], @"This is not actually a block. Did you mean to use '?' instead of ':'?");
+            NSAssert([block isKindOfClass:[NSObject class]],
+                     @"This is not actually a block. Did you mean to use "
+                      "'?' instead of ':'?");
             for (NSString *key in keys)
-                [self addTastyObserver:observer forKeyPath:key withBlock:block];
+                [self addTastyObserver:observer
+                            forKeyPath:key
+                             withBlock:block];
         } else {
             SEL selector = va_arg(args, typeof(selector));
-            NSAssert(NSStringFromSelector(selector), @"This is not actually a selector. Did you mean to use ':' instead of '?'?");
+            NSAssert(NSStringFromSelector(selector),
+                     @"This is not actually a selector. Did you mean to use "
+                      "':' instead of '?'?");
             for (NSString *key in keys)
-                [self addTastyObserver:observer forKeyPath:key withSelector:selector];
+                [self addTastyObserver:observer
+                            forKeyPath:key
+                          withSelector:selector];
         }
         multiKey = va_arg(args, typeof(multiKey));
     }
@@ -184,40 +228,43 @@ static dispatch_queue_t _mutation_queue()
     va_end(args);
 }
 
-#pragma mark
+#pragma mark - Removing observers
 
-
-- (NSMutableDictionary *)_observerDict:(id)observer
+- (void)_cleanupDictForObserver:(NSValue *)observerPtr
 {
-    NSMutableDictionary *observerDict = objc_getAssociatedObject(self, TastyObserverKey);
-    NSValue *ptr = [NSValue valueWithPointer:observer];
-    return [observerDict objectForKey:ptr];
+    NSMutableDictionary *observerDict =
+                   objc_getAssociatedObject(self, kTastyKVOAssociatedDictKey);
+    [observerDict removeObjectForKey:observerPtr];
+
+    // Due to a bug in the obj-c runtime, this dictionary does not get
+    // cleaned up on release when running without GC.
+    if ([observerDict count] == 0)
+        objc_setAssociatedObject(self,
+                                 kTastyKVOAssociatedDictKey,
+                                 nil,
+                                 OBJC_ASSOCIATION_RETAIN);
 }
 
 - (void)removeTastyObserver:(id)observer
 {
-    dispatch_sync(_mutation_queue(), ^{
-        NSMutableDictionary *observerDict = objc_getAssociatedObject(self, TastyObserverKey);
+    dispatch_sync(_lock_queue(), ^{
+        NSMutableDictionary *observerDict =
+                   objc_getAssociatedObject(self, kTastyKVOAssociatedDictKey);
 
         NSValue *ptr = [NSValue valueWithPointer:observer];
         NSMutableDictionary *dict = [observerDict objectForKey:ptr];
+        if (dict == nil) {
+            NSLog(@"%@: Ignoring attempt to remove non-existent observer %@"
+                   "on %@.", NSStringFromSelector(_cmd), observer, self);
+            return;
+        }
         NSArray *keys = [dict allKeys];
         for (NSString *key in keys) {
             TastyObserverTrampoline *trampoline = [dict objectForKey:key];
-            if (trampoline == nil) {
-                NSLog(@"%@: Ignoring attempt to remove non-existent observer on %@ for token %@.", NSStringFromSelector(_cmd), self, observer);
-                return;
-            }
             [trampoline stopObserving];
             [dict removeObjectForKey:key];
         }
-        [observerDict removeObjectForKey:ptr];
-
-        NSLog(@"observerDict: %@", observerDict);
-
-        // Due to a bug in the obj-c runtime, this dictionary does not get cleaned up on release when running without GC.
-        if ([observerDict count] == 0)
-            objc_setAssociatedObject(self, TastyObserverKey, nil, OBJC_ASSOCIATION_RETAIN);
+        [self _cleanupDictForObserver:ptr];
     });
 }
 
@@ -227,19 +274,25 @@ static dispatch_queue_t _mutation_queue()
         [self removeTastyObserver:observer];
         return;
     }
-
-    dispatch_sync(_mutation_queue(), ^{
-        NSMutableDictionary *dict = [self _observerDict:observer];
+    dispatch_sync(_lock_queue(), ^{
+        NSMutableDictionary *observerDict =
+                   objc_getAssociatedObject(self, kTastyKVOAssociatedDictKey);
+        NSValue *ptr = [NSValue valueWithPointer:observer];
+        NSMutableDictionary *dict = [observerDict objectForKey:ptr];
+        if (dict == nil) {
+            NSLog(@"%@: Ignoring attempt to remove non-existent observer %@"
+                   "on %@ for multi-key path %@.",
+                  NSStringFromSelector(_cmd), observer, self, multiKeyPath);
+            return;
+        }
         NSArray *keys = [multiKeyPath componentsSeparatedByString:@"|"];
         for (NSString *key in keys) {
             TastyObserverTrampoline *trampoline = [dict objectForKey:key];
-            if (trampoline == nil) {
-                NSLog(@"%@: Ignoring attempt to remove non-existent observer %@ on %@.", NSStringFromSelector(_cmd), self, observer);
-                return;
-            }
             [trampoline stopObserving];
             [dict removeObjectForKey:key];
         }
+        if ([dict count] == 0)
+            [self _cleanupDictForObserver:ptr];
     });
 }
 
@@ -252,7 +305,7 @@ static NSString *const TastyObserverTargetKey = @"org.tastyobservertarget.associ
 
 - (void)_addObservationTarget:(id)target
 {
-    dispatch_sync(_mutation_queue(), ^{
+    dispatch_sync(_lock_queue(), ^{
         NSMutableSet *set = objc_getAssociatedObject(self, TastyObserverTargetKey);
         if (set == nil) {
             set = [[NSMutableSet alloc] init];
@@ -265,7 +318,7 @@ static NSString *const TastyObserverTargetKey = @"org.tastyobservertarget.associ
 
 - (void)_removeObservationTarget:(id)target
 {
-    dispatch_sync(_mutation_queue(), ^{
+    dispatch_sync(_lock_queue(), ^{
         NSMutableSet *set = objc_getAssociatedObject(self, TastyObserverTargetKey);
         if (set) {
             [set removeObject:[NSValue valueWithNonretainedObject:target]];
@@ -300,7 +353,7 @@ static NSString *const TastyObserverTargetKey = @"org.tastyobservertarget.associ
 
 - (void)stopObserving
 {
-    dispatch_sync(_mutation_queue(), ^{
+    dispatch_sync(_lock_queue(), ^{
         NSMutableSet *set = objc_getAssociatedObject(self, TastyObserverTargetKey);
         if (set) {
             [set removeAllObjects];
