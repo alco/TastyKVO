@@ -18,17 +18,18 @@
  * intentionally and it is a good idea to follow this convention when writing
  * blocks for use with TastyKVO.
  *
- * In the conventional KVO API it is common to register 'self' as an observer
+ * In the conventional KVO API, it is common to register 'self' as an observer
  * and unregister in its 'dealloc' method.  When we start using blocks with
- * KVO, the 'dealloc' method might not get called at all due to a retain-cycle
- * introduced inadvertently by referencing an ivar inside a block.
+ * KVO, we might inadvertently introduce a retain cycle by referencing an ivar
+ * inside a block in which case the 'dealloc' method will not get called at
+ * all.
  *
  * By naming the first argument 'self', we shadow the previous reference to
  * self and avoid it being retained (blocks do not retain their arguments).
- * Having this new 'self' in place, you can freely reference ivars inside a
- * block and not be afraid of introducing a retain-cycle.
+ * Having this new 'self' in place, we can freely reference ivars inside a
+ * block and not be afraid of introducing a retain cycle.
  *
- * This whole idea is borrowed from Jonathan Wight's own implementation of the
+ * This whole idea was borrowed from Jonathan Wight's own implementation of the
  * "KVO + blocks = love" thing --> http://toxicsoftware.com/kvoblocks/
  */
 typedef void (^TastyBlock)(id self, id target, NSDictionary *change);
@@ -38,16 +39,16 @@ typedef void (^TastyBlock)(id self, id target, NSDictionary *change);
 
 /**
  * The 'multiKeyPath' argument in all of the methods defined in this file is an
- * extensions of the key path defined by KVO. It may contain more than one key
- * path with individual keys separated by a bar (|).
+ * extensions of the key path defined by the conventional KVO. It may contain
+ * more than one key path with individual keys separated by a bar (|).
  *
- * For instance, the code
+ * It allows us to write code like
  *
  *   [target addObserver:self
  *            forKeyPath:@"someProperty|anotherProperty"
  *          withSelector:@selector(triggerChange)];
  *
- * is equivalent to the following sequential invocations
+ * which is equivalent to the following sequential invocations
  *
  *   [target addObserver:self
  *            forKeyPath:@"someProperty"
@@ -69,7 +70,7 @@ typedef void (^TastyBlock)(id self, id target, NSDictionary *change);
 
 @interface NSObject(TastyKVOExtension)
 
-#pragma mark - Adding observer
+#pragma mark - Adding observers
 
 /**
  * The 'selector' in its full form has the following signature
@@ -91,8 +92,8 @@ typedef void (^TastyBlock)(id self, id target, NSDictionary *change);
             withSelector:(SEL)selector;
 
 /**
- * This method is equivalent to the previous one except instead of selector it
- * accepts a block.
+ * This method is equivalent to the previous one except that it accepts a block
+ * instead of a selector.
  */
 - (void)addTastyObserver:(id)observer
               forKeyPath:(NSString *)multiKeyPath
@@ -120,7 +121,7 @@ typedef void (^TastyBlock)(id self, id target, NSDictionary *change);
 - (void)addTastyObserver:(id)observer
              forKeyPaths:(NSString *)firstKey, ... NS_REQUIRES_NIL_TERMINATION;
 
-#pragma mark - Removing observer
+#pragma mark - Removing observers
 
 /**
  * Remove the observer for each key path it is subscribed to.
@@ -130,19 +131,17 @@ typedef void (^TastyBlock)(id self, id target, NSDictionary *change);
 /**
  * Remove the observer for the specified multi-key path.
  *
- * 'multiKeyPath' may also have the special value of @"*", in which case the
- * observer is removed for each key path it is subscribed to, similar to the
- * previous method.
+ * Pass @"*" in place of 'multiKeyPath' to remove the observer for each key
+ * path it is subscribed to.
  */
 - (void)removeTastyObserver:(id)observer
-                 forKeyPath:(NSString *)key;
+                 forKeyPath:(NSString *)multiKeyPath;
 @end
-
 
 #pragma mark - An alternative way to do the same thing
 
 /**
- * The TastyObserver category is simply a wrapper over the methods defined in
+ * The TastyObserver category is a wrapper over the methods defined in
  * TastyKVOExtension which restates the functionality of those methods from the
  * observer's point of view. That is to say, the methods defined below allow
  * you to subscribe to KVO notifications from the first person.
@@ -156,7 +155,7 @@ typedef void (^TastyBlock)(id self, id target, NSDictionary *change);
 
 /**
  * Each of the following 'observeChangesIn...' methods registers 'self' as an
- * observer with the 'target'.
+ * observer of the specified target's key paths.
  */
 - (void)observeChangesIn:(id)target
                ofKeyPath:(NSString *)multiKeyPath
