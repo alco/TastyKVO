@@ -2,7 +2,7 @@
 #import "Helpers.h"
 
 
-@interface TastyKVOExtensionTests: SenTestCase {
+@interface TastyKVODeallocationTests: SenTestCase {
 @private
     TargetObject *_target;
     ObserverObject *_observer;

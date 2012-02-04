@@ -4,59 +4,7 @@
 #import <objc/runtime.h>
 
 
-@interface TargetObject: NSObject {
-@private
-    BOOL _boolVar;
-    int _intVar;
-    float _floatVar;
-    NSString *_message;
-
-}
-@property (nonatomic) BOOL boolVar;
-@property (nonatomic) int intVar;
-@property (nonatomic) float floatVar;
-@property (nonatomic, copy) NSString *message;
-@end
-
-@implementation TargetObject
-@synthesize
-boolVar = _boolVar,
-intVar = _intVar,
-floatVar = _floatVar,
-message = _message;
-- (void)dealloc
-{
-    [_message release];
-    [super dealloc];
-}
-@end
-
-#pragma mark -
-
-@interface ObserverObject: NSObject {
-@private
-    BOOL _flag;
-    int _counter;
-}
-@property (nonatomic) BOOL flag;
-@property (nonatomic) int counter;
-@end
-
-@implementation ObserverObject
-@synthesize
-flag = _flag,
-counter = _counter;
-- (void)flipFlag
-{
-    _flag = !_flag;
-}
-- (void)increment
-{
-    ++_counter;
-}
-@end
-
-#pragma mark -
+static NSString *kAssociatedKey = @"org.tastykvo.associatedDictKey";
 
 @implementation TastyKVOExtensionTests
 
@@ -250,9 +198,10 @@ counter = _counter;
     [_target addTastyObserver:_observer
                    forKeyPath:@"boolVar|intVar|floatVar|message"
                  withSelector:@selector(increment)];
-    [_target removeTastyObserver:_observer];
+    STAssertNotNil(objc_getAssociatedObject(_target, kAssociatedKey), @"Wrong associated key?");
 
-    STAssertNil(objc_getAssociatedObject(_target, @"org.tastykvo.associatedDictKey"),
+    [_target removeTastyObserver:_observer];
+    STAssertNil(objc_getAssociatedObject(_target, kAssociatedKey),
                 @"Observer dict was not removed after the observer had been removed");
 
     _target.boolVar = YES;
@@ -304,7 +253,7 @@ counter = _counter;
     _target.intVar = 0;
     STAssertEquals([_observer counter], 3, @"-[observer increment] was triggered after the observation of 'intVar' had been stopped");
 
-    STAssertNil(objc_getAssociatedObject(_target, @"org.tastykvo.associatedDictKey"),
+    STAssertNil(objc_getAssociatedObject(_target, kAssociatedKey),
                 @"Observer dict was not removed after the observer had been removed");
 }
 
