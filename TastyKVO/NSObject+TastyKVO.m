@@ -98,7 +98,7 @@ static NSString *const kTastyObserverTrampolineContext =
 
 @end
 
-#pragma mark - The main category implementation
+#pragma mark - The main API implementation
 
 static dispatch_queue_t _lock_queue()
 {

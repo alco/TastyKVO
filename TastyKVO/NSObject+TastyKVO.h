@@ -168,6 +168,8 @@ typedef void (^TastyBlock)(id self, id target, NSDictionary *change);
 - (void)observeChangesIn:(id)target
               ofKeyPaths:(NSString *)firstKey, ... NS_REQUIRES_NIL_TERMINATION;
 
+#pragma mark
+
 /**
  * This method causes the receiver to unsubscribe from ALL objects that it has
  * previously registered itself as an observer with. A perfect candidate for
