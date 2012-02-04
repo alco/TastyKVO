@@ -124,6 +124,11 @@ typedef void (^TastyBlock)(id self, id target, NSDictionary *change);
 #pragma mark - Removing observers
 
 /**
+ * The name says it all.
+ */
+- (void)removeAllTastyObservers;
+
+/**
  * Remove the observer for each key path it is subscribed to.
  */
 - (void)removeTastyObserver:(id)observer;

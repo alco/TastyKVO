@@ -250,7 +250,7 @@ static NSString *const kTastyKVOAssociatedDictKey =
 - (void)_doRemoveTastyObserver:(id)observer
 {
     NSMutableDictionary *observerDict =
-    objc_getAssociatedObject(self, kTastyKVOAssociatedDictKey);
+                   objc_getAssociatedObject(self, kTastyKVOAssociatedDictKey);
 
     NSValue *ptr = [NSValue valueWithPointer:observer];
     NSMutableDictionary *dict = [observerDict objectForKey:ptr];
@@ -276,6 +276,21 @@ static NSString *const kTastyKVOAssociatedDictKey =
         });
     else
         [self _doRemoveTastyObserver:observer];
+}
+
+#pragma mark
+
+- (void)removeAllTastyObservers
+{
+    dispatch_sync(_lock_queue(), ^{
+        NSMutableDictionary *observerDict =
+                   objc_getAssociatedObject(self, kTastyKVOAssociatedDictKey);
+
+        NSArray *pointers = [observerDict allKeys];
+        for (NSValue *ptr in pointers) {
+            [self _doRemoveTastyObserver:[ptr pointerValue]];
+        }
+    });
 }
 
 - (void)removeTastyObserver:(id)observer
