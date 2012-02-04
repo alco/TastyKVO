@@ -77,9 +77,9 @@ by the library.
 ```objc
 - (id)observeExternalNature:(id)nature
 {
-    [self observerChangesIn:nature
-                  ofKeyPath:@"averageTemperature"
-               withSelector:@selector(maybeBuyCoat)];
+    [self observeChangesIn:nature
+                 ofKeyPath:@"averageTemperature"
+              withSelector:@selector(maybeBuyCoat)];
 }
 
 - (void)dealloc
@@ -106,6 +106,15 @@ TastyBlock block = ...;
 [target addTastyObserver:self forKeyPath:@"anotherProperty" withBlock:block];
 ```
 
+### Unregister automatically ###
+
+There is also a way to automatically ensure that your object stops observing
+when it is deallocated.
+
+```objc
+// Coming soon...
+```
+
 
 ## License & Feedback ##
 
@@ -118,10 +127,13 @@ page][1].
 If you want your modifications to be merged with the main project fork, send me
 a [pull request][2].
 
+If you have suggestions, comments or other kinds of feedback, don't hesitate to
+contact me directly. My name is Alex.
+
 ---
 
 Originally written by Alexei Sholik <alcosholik@gmail.com> in February 2012.
 
 
   [1]: https://github.com/alco/TastyKVO
-  [2]: https://github.com/alco/TastyKVO/pullrequests
+  [2]: https://github.com/alco/TastyKVO/pulls
