@@ -8,22 +8,22 @@
 
 /* Begin PBXBuildFile section */
 		6EFB287214DD29E00024E766 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6EFB287114DD29E00024E766 /* Cocoa.framework */; };
-		6EFB288714DD2A160024E766 /* TastyKVOExtensionTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 6EFB288614DD2A160024E766 /* TastyKVOExtensionTests.m */; };
 		6EFB289314DD2A440024E766 /* NSObject+TastyKVO.m in Sources */ = {isa = PBXBuildFile; fileRef = 6EFB288E14DD2A440024E766 /* NSObject+TastyKVO.m */; };
+		6EFB28A014DD59DB0024E766 /* TastyKVOExtensionTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 6EFB289D14DD59DB0024E766 /* TastyKVOExtensionTests.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		6EFB286E14DD29E00024E766 /* TastyKVOExtensionTests.octest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = TastyKVOExtensionTests.octest; sourceTree = BUILT_PRODUCTS_DIR; };
+		6EFB286E14DD29E00024E766 /* TastyKVOTests.octest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = TastyKVOTests.octest; sourceTree = BUILT_PRODUCTS_DIR; };
 		6EFB287114DD29E00024E766 /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = System/Library/Frameworks/Cocoa.framework; sourceTree = SDKROOT; };
 		6EFB287414DD29E00024E766 /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = System/Library/Frameworks/AppKit.framework; sourceTree = SDKROOT; };
 		6EFB287514DD29E00024E766 /* CoreData.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreData.framework; path = System/Library/Frameworks/CoreData.framework; sourceTree = SDKROOT; };
 		6EFB287614DD29E00024E766 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
-		6EFB287914DD29E00024E766 /* TastyKVOExtensionTests-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "TastyKVOExtensionTests-Info.plist"; sourceTree = "<group>"; };
-		6EFB287D14DD29E00024E766 /* TastyKVOExtensionTests-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "TastyKVOExtensionTests-Prefix.pch"; sourceTree = "<group>"; };
-		6EFB288514DD2A160024E766 /* TastyKVOExtensionTests.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TastyKVOExtensionTests.h; sourceTree = "<group>"; };
-		6EFB288614DD2A160024E766 /* TastyKVOExtensionTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TastyKVOExtensionTests.m; sourceTree = "<group>"; };
 		6EFB288D14DD2A440024E766 /* NSObject+TastyKVO.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSObject+TastyKVO.h"; sourceTree = "<group>"; };
 		6EFB288E14DD2A440024E766 /* NSObject+TastyKVO.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSObject+TastyKVO.m"; sourceTree = "<group>"; };
+		6EFB289C14DD59DB0024E766 /* TastyKVOExtensionTests.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TastyKVOExtensionTests.h; sourceTree = "<group>"; };
+		6EFB289D14DD59DB0024E766 /* TastyKVOExtensionTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TastyKVOExtensionTests.m; sourceTree = "<group>"; };
+		6EFB289E14DD59DB0024E766 /* TastyKVOTests-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "TastyKVOTests-Info.plist"; sourceTree = "<group>"; };
+		6EFB289F14DD59DB0024E766 /* TastyKVOTests-Prefix.pch */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "TastyKVOTests-Prefix.pch"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -42,7 +42,7 @@
 			isa = PBXGroup;
 			children = (
 				6EFB288814DD2A440024E766 /* TastyKVO */,
-				6EFB287714DD29E00024E766 /* TastyKVOExtensionTests */,
+				6EFB289B14DD59DB0024E766 /* TastyKVOTests */,
 				6EFB287014DD29E00024E766 /* Frameworks */,
 				6EFB286F14DD29E00024E766 /* Products */,
 			);
@@ -51,7 +51,7 @@
 		6EFB286F14DD29E00024E766 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				6EFB286E14DD29E00024E766 /* TastyKVOExtensionTests.octest */,
+				6EFB286E14DD29E00024E766 /* TastyKVOTests.octest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -75,25 +75,6 @@
 			name = "Other Frameworks";
 			sourceTree = "<group>";
 		};
-		6EFB287714DD29E00024E766 /* TastyKVOExtensionTests */ = {
-			isa = PBXGroup;
-			children = (
-				6EFB288514DD2A160024E766 /* TastyKVOExtensionTests.h */,
-				6EFB288614DD2A160024E766 /* TastyKVOExtensionTests.m */,
-				6EFB287814DD29E00024E766 /* Supporting Files */,
-			);
-			path = TastyKVOExtensionTests;
-			sourceTree = "<group>";
-		};
-		6EFB287814DD29E00024E766 /* Supporting Files */ = {
-			isa = PBXGroup;
-			children = (
-				6EFB287914DD29E00024E766 /* TastyKVOExtensionTests-Info.plist */,
-				6EFB287D14DD29E00024E766 /* TastyKVOExtensionTests-Prefix.pch */,
-			);
-			name = "Supporting Files";
-			sourceTree = "<group>";
-		};
 		6EFB288814DD2A440024E766 /* TastyKVO */ = {
 			isa = PBXGroup;
 			children = (
@@ -104,12 +85,31 @@
 			path = ../../TastyKVO;
 			sourceTree = "<group>";
 		};
+		6EFB289B14DD59DB0024E766 /* TastyKVOTests */ = {
+			isa = PBXGroup;
+			children = (
+				6EFB289C14DD59DB0024E766 /* TastyKVOExtensionTests.h */,
+				6EFB289D14DD59DB0024E766 /* TastyKVOExtensionTests.m */,
+				6EFB28A214DD59E50024E766 /* Supporting Files */,
+			);
+			path = TastyKVOTests;
+			sourceTree = "<group>";
+		};
+		6EFB28A214DD59E50024E766 /* Supporting Files */ = {
+			isa = PBXGroup;
+			children = (
+				6EFB289E14DD59DB0024E766 /* TastyKVOTests-Info.plist */,
+				6EFB289F14DD59DB0024E766 /* TastyKVOTests-Prefix.pch */,
+			);
+			name = "Supporting Files";
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		6EFB286D14DD29E00024E766 /* TastyKVOExtensionTests */ = {
+		6EFB286D14DD29E00024E766 /* TastyKVOTests */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 6EFB288214DD29E00024E766 /* Build configuration list for PBXNativeTarget "TastyKVOExtensionTests" */;
+			buildConfigurationList = 6EFB288214DD29E00024E766 /* Build configuration list for PBXNativeTarget "TastyKVOTests" */;
 			buildPhases = (
 				6EFB286914DD29E00024E766 /* Sources */,
 				6EFB286A14DD29E00024E766 /* Frameworks */,
@@ -120,9 +120,9 @@
 			);
 			dependencies = (
 			);
-			name = TastyKVOExtensionTests;
+			name = TastyKVOTests;
 			productName = TastyKVOExtensionTests;
-			productReference = 6EFB286E14DD29E00024E766 /* TastyKVOExtensionTests.octest */;
+			productReference = 6EFB286E14DD29E00024E766 /* TastyKVOTests.octest */;
 			productType = "com.apple.product-type.bundle";
 		};
 /* End PBXNativeTarget section */
@@ -142,7 +142,7 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				6EFB286D14DD29E00024E766 /* TastyKVOExtensionTests */,
+				6EFB286D14DD29E00024E766 /* TastyKVOTests */,
 			);
 		};
 /* End PBXProject section */
@@ -178,8 +178,8 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				6EFB288714DD2A160024E766 /* TastyKVOExtensionTests.m in Sources */,
 				6EFB289314DD2A440024E766 /* NSObject+TastyKVO.m in Sources */,
+				6EFB28A014DD59DB0024E766 /* TastyKVOExtensionTests.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -210,14 +210,14 @@
 				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
 				GCC_OPTIMIZATION_LEVEL = 0;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "TastyKVOExtensionTests/TastyKVOExtensionTests-Prefix.pch";
+				GCC_PREFIX_HEADER = "TastyKVOTests/TastyKVOTests-Prefix.pch";
 				GCC_PREPROCESSOR_DEFINITIONS = DEBUG;
 				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
 				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				INFOPLIST_FILE = "TastyKVOExtensionTests/TastyKVOExtensionTests-Info.plist";
+				INFOPLIST_FILE = "TastyKVOTests/TastyKVOTests-Info.plist";
 				MACOSX_DEPLOYMENT_TARGET = 10.6;
 				ONLY_ACTIVE_ARCH = YES;
 				OTHER_LDFLAGS = (
@@ -241,12 +241,12 @@
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "TastyKVOExtensionTests/TastyKVOExtensionTests-Prefix.pch";
+				GCC_PREFIX_HEADER = "TastyKVOTests/TastyKVOTests-Prefix.pch";
 				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				INFOPLIST_FILE = "TastyKVOExtensionTests/TastyKVOExtensionTests-Info.plist";
+				INFOPLIST_FILE = "TastyKVOTests/TastyKVOTests-Info.plist";
 				MACOSX_DEPLOYMENT_TARGET = 10.6;
 				OTHER_LDFLAGS = (
 					"-framework",
@@ -270,13 +270,14 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		6EFB288214DD29E00024E766 /* Build configuration list for PBXNativeTarget "TastyKVOExtensionTests" */ = {
+		6EFB288214DD29E00024E766 /* Build configuration list for PBXNativeTarget "TastyKVOTests" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				6EFB288314DD29E00024E766 /* Debug */,
 				6EFB288414DD29E00024E766 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};
