@@ -173,8 +173,7 @@ typedef void (^TastyBlock)(id self, id target, NSDictionary *change);
 /**
  * This method causes the receiver to unsubscribe from ALL objects that it has
  * previously registered itself as an observer with. A perfect candidate for
- * the dealloc method. Although it is possible to invoke this method
- * automatically (see below).
+ * the dealloc method.
  */
 - (void)stopObserving;
 
