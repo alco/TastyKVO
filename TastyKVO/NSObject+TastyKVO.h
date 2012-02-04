@@ -4,7 +4,7 @@
 //
 // The code in this file is in the public domain.
 //
-// Originally created by Alexei Sholik in February 2012.
+// Originally written by Alexei Sholik <alcosholik@gmail.com> in February 2012.
 // https://github.com/alco/TastyKVO
 //
 // Inspired by Andy Matuschak's NSObject+BlockObservation implementation
