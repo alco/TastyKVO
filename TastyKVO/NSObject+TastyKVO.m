@@ -298,18 +298,24 @@ static NSString *const kTastyKVOAssociatedDictKey =
 
 @end
 
+#pragma mark - The alternative API implementation
 
-static NSString *const TastyObserverTargetKey = @"org.tastyobservertarget.associatedDictKey";
+static NSString *const kTastyKVOAssociatedTargetKey =
+                                          @"org.tastykvo.associatedTargetKey";
 
 @implementation NSObject(TastyKVOObserver)
 
 - (void)_addObservationTarget:(id)target
 {
     dispatch_sync(_lock_queue(), ^{
-        NSMutableSet *set = objc_getAssociatedObject(self, TastyObserverTargetKey);
+        NSMutableSet *set =
+                 objc_getAssociatedObject(self, kTastyKVOAssociatedTargetKey);
         if (set == nil) {
             set = [[NSMutableSet alloc] init];
-            objc_setAssociatedObject(self, TastyObserverTargetKey, set, OBJC_ASSOCIATION_RETAIN);
+            objc_setAssociatedObject(self,
+                                     kTastyKVOAssociatedTargetKey,
+                                     set,
+                                     OBJC_ASSOCIATION_RETAIN);
             [set release];
         }
         [set addObject:[NSValue valueWithNonretainedObject:target]];
@@ -319,26 +325,39 @@ static NSString *const TastyObserverTargetKey = @"org.tastyobservertarget.associ
 - (void)_removeObservationTarget:(id)target
 {
     dispatch_sync(_lock_queue(), ^{
-        NSMutableSet *set = objc_getAssociatedObject(self, TastyObserverTargetKey);
+        NSMutableSet *set =
+                 objc_getAssociatedObject(self, kTastyKVOAssociatedTargetKey);
         if (set) {
             [set removeObject:[NSValue valueWithNonretainedObject:target]];
-
             if ([set count] == 0)
-                objc_setAssociatedObject(self, TastyObserverTargetKey, nil, OBJC_ASSOCIATION_RETAIN);
+                objc_setAssociatedObject(self,
+                                         kTastyKVOAssociatedTargetKey,
+                                         nil,
+                                         OBJC_ASSOCIATION_RETAIN);
         }
     });
 }
 
-- (void)observeChangesIn:(id)target ofKeyPath:(NSString *)multiKeyPath withSelector:(SEL)selector
+#pragma mark
+
+- (void)observeChangesIn:(id)target
+               ofKeyPath:(NSString *)multiKeyPath
+            withSelector:(SEL)selector
 {
     [self _addObservationTarget:target];
-    [target addTastyObserver:self forKeyPath:multiKeyPath withSelector:selector];
+    [target addTastyObserver:self
+                  forKeyPath:multiKeyPath
+                withSelector:selector];
 }
 
-- (void)observeChangesIn:(id)target ofKeyPath:(NSString *)multiKeyPath withBlock:(TastyBlock)block
+- (void)observeChangesIn:(id)target
+               ofKeyPath:(NSString *)multiKeyPath
+               withBlock:(TastyBlock)block
 {
     [self _addObservationTarget:target];
-    [target addTastyObserver:self forKeyPath:multiKeyPath withBlock:block];
+    [target addTastyObserver:self
+                  forKeyPath:multiKeyPath
+                   withBlock:block];
 }
 
 - (void)observeChangesIn:(id)target
@@ -351,13 +370,23 @@ static NSString *const TastyObserverTargetKey = @"org.tastyobservertarget.associ
     va_end(args);
 }
 
+#pragma mark
+
 - (void)stopObserving
 {
     dispatch_sync(_lock_queue(), ^{
-        NSMutableSet *set = objc_getAssociatedObject(self, TastyObserverTargetKey);
+        NSMutableSet *set =
+                 objc_getAssociatedObject(self, kTastyKVOAssociatedTargetKey);
         if (set) {
+            for (NSValue *val in set) {
+                id target = [val nonretainedObjectValue];
+                [target removeTastyObserver:self];
+            }
             [set removeAllObjects];
-            objc_setAssociatedObject(self, TastyObserverTargetKey, nil, OBJC_ASSOCIATION_RETAIN);
+            objc_setAssociatedObject(self,
+                                     kTastyKVOAssociatedTargetKey,
+                                     nil,
+                                     OBJC_ASSOCIATION_RETAIN);
         }
     });
 }
