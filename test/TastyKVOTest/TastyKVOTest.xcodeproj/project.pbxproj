@@ -1,0 +1,284 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 46;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		6EFB287214DD29E00024E766 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6EFB287114DD29E00024E766 /* Cocoa.framework */; };
+		6EFB288714DD2A160024E766 /* TastyKVOExtensionTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 6EFB288614DD2A160024E766 /* TastyKVOExtensionTests.m */; };
+		6EFB289314DD2A440024E766 /* NSObject+TastyKVO.m in Sources */ = {isa = PBXBuildFile; fileRef = 6EFB288E14DD2A440024E766 /* NSObject+TastyKVO.m */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		6EFB286E14DD29E00024E766 /* TastyKVOExtensionTests.octest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = TastyKVOExtensionTests.octest; sourceTree = BUILT_PRODUCTS_DIR; };
+		6EFB287114DD29E00024E766 /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = System/Library/Frameworks/Cocoa.framework; sourceTree = SDKROOT; };
+		6EFB287414DD29E00024E766 /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = System/Library/Frameworks/AppKit.framework; sourceTree = SDKROOT; };
+		6EFB287514DD29E00024E766 /* CoreData.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreData.framework; path = System/Library/Frameworks/CoreData.framework; sourceTree = SDKROOT; };
+		6EFB287614DD29E00024E766 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
+		6EFB287914DD29E00024E766 /* TastyKVOExtensionTests-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "TastyKVOExtensionTests-Info.plist"; sourceTree = "<group>"; };
+		6EFB287D14DD29E00024E766 /* TastyKVOExtensionTests-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "TastyKVOExtensionTests-Prefix.pch"; sourceTree = "<group>"; };
+		6EFB288514DD2A160024E766 /* TastyKVOExtensionTests.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TastyKVOExtensionTests.h; sourceTree = "<group>"; };
+		6EFB288614DD2A160024E766 /* TastyKVOExtensionTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TastyKVOExtensionTests.m; sourceTree = "<group>"; };
+		6EFB288D14DD2A440024E766 /* NSObject+TastyKVO.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSObject+TastyKVO.h"; sourceTree = "<group>"; };
+		6EFB288E14DD2A440024E766 /* NSObject+TastyKVO.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSObject+TastyKVO.m"; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		6EFB286A14DD29E00024E766 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				6EFB287214DD29E00024E766 /* Cocoa.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		6EFB286014DD29C50024E766 = {
+			isa = PBXGroup;
+			children = (
+				6EFB288814DD2A440024E766 /* TastyKVO */,
+				6EFB287714DD29E00024E766 /* TastyKVOExtensionTests */,
+				6EFB287014DD29E00024E766 /* Frameworks */,
+				6EFB286F14DD29E00024E766 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		6EFB286F14DD29E00024E766 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				6EFB286E14DD29E00024E766 /* TastyKVOExtensionTests.octest */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		6EFB287014DD29E00024E766 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				6EFB287114DD29E00024E766 /* Cocoa.framework */,
+				6EFB287314DD29E00024E766 /* Other Frameworks */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		6EFB287314DD29E00024E766 /* Other Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				6EFB287414DD29E00024E766 /* AppKit.framework */,
+				6EFB287514DD29E00024E766 /* CoreData.framework */,
+				6EFB287614DD29E00024E766 /* Foundation.framework */,
+			);
+			name = "Other Frameworks";
+			sourceTree = "<group>";
+		};
+		6EFB287714DD29E00024E766 /* TastyKVOExtensionTests */ = {
+			isa = PBXGroup;
+			children = (
+				6EFB288514DD2A160024E766 /* TastyKVOExtensionTests.h */,
+				6EFB288614DD2A160024E766 /* TastyKVOExtensionTests.m */,
+				6EFB287814DD29E00024E766 /* Supporting Files */,
+			);
+			path = TastyKVOExtensionTests;
+			sourceTree = "<group>";
+		};
+		6EFB287814DD29E00024E766 /* Supporting Files */ = {
+			isa = PBXGroup;
+			children = (
+				6EFB287914DD29E00024E766 /* TastyKVOExtensionTests-Info.plist */,
+				6EFB287D14DD29E00024E766 /* TastyKVOExtensionTests-Prefix.pch */,
+			);
+			name = "Supporting Files";
+			sourceTree = "<group>";
+		};
+		6EFB288814DD2A440024E766 /* TastyKVO */ = {
+			isa = PBXGroup;
+			children = (
+				6EFB288D14DD2A440024E766 /* NSObject+TastyKVO.h */,
+				6EFB288E14DD2A440024E766 /* NSObject+TastyKVO.m */,
+			);
+			name = TastyKVO;
+			path = ../../TastyKVO;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		6EFB286D14DD29E00024E766 /* TastyKVOExtensionTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 6EFB288214DD29E00024E766 /* Build configuration list for PBXNativeTarget "TastyKVOExtensionTests" */;
+			buildPhases = (
+				6EFB286914DD29E00024E766 /* Sources */,
+				6EFB286A14DD29E00024E766 /* Frameworks */,
+				6EFB286B14DD29E00024E766 /* Resources */,
+				6EFB286C14DD29E00024E766 /* ShellScript */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = TastyKVOExtensionTests;
+			productName = TastyKVOExtensionTests;
+			productReference = 6EFB286E14DD29E00024E766 /* TastyKVOExtensionTests.octest */;
+			productType = "com.apple.product-type.bundle";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		6EFB286214DD29C50024E766 /* Project object */ = {
+			isa = PBXProject;
+			buildConfigurationList = 6EFB286514DD29C50024E766 /* Build configuration list for PBXProject "TastyKVOTest" */;
+			compatibilityVersion = "Xcode 3.2";
+			developmentRegion = English;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+			);
+			mainGroup = 6EFB286014DD29C50024E766;
+			productRefGroup = 6EFB286F14DD29E00024E766 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				6EFB286D14DD29E00024E766 /* TastyKVOExtensionTests */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		6EFB286B14DD29E00024E766 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		6EFB286C14DD29E00024E766 /* ShellScript */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "# Run the unit tests in this test bundle.\n\"${SYSTEM_DEVELOPER_DIR}/Tools/RunUnitTests\"\n";
+		};
+/* End PBXShellScriptBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		6EFB286914DD29E00024E766 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				6EFB288714DD2A160024E766 /* TastyKVOExtensionTests.m in Sources */,
+				6EFB289314DD2A440024E766 /* NSObject+TastyKVO.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		6EFB286714DD29C50024E766 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+			};
+			name = Debug;
+		};
+		6EFB286814DD29C50024E766 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+			};
+			name = Release;
+		};
+		6EFB288314DD29E00024E766 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ARCHS = "$(ARCHS_STANDARD_32_64_BIT)";
+				COPY_PHASE_STRIP = NO;
+				FRAMEWORK_SEARCH_PATHS = "$(DEVELOPER_LIBRARY_DIR)/Frameworks";
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "TastyKVOExtensionTests/TastyKVOExtensionTests-Prefix.pch";
+				GCC_PREPROCESSOR_DEFINITIONS = DEBUG;
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				INFOPLIST_FILE = "TastyKVOExtensionTests/TastyKVOExtensionTests-Info.plist";
+				MACOSX_DEPLOYMENT_TARGET = 10.6;
+				ONLY_ACTIVE_ARCH = YES;
+				OTHER_LDFLAGS = (
+					"-framework",
+					SenTestingKit,
+				);
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+				WRAPPER_EXTENSION = octest;
+			};
+			name = Debug;
+		};
+		6EFB288414DD29E00024E766 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ARCHS = "$(ARCHS_STANDARD_32_64_BIT)";
+				COPY_PHASE_STRIP = YES;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				FRAMEWORK_SEARCH_PATHS = "$(DEVELOPER_LIBRARY_DIR)/Frameworks";
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "TastyKVOExtensionTests/TastyKVOExtensionTests-Prefix.pch";
+				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				INFOPLIST_FILE = "TastyKVOExtensionTests/TastyKVOExtensionTests-Info.plist";
+				MACOSX_DEPLOYMENT_TARGET = 10.6;
+				OTHER_LDFLAGS = (
+					"-framework",
+					SenTestingKit,
+				);
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+				WRAPPER_EXTENSION = octest;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		6EFB286514DD29C50024E766 /* Build configuration list for PBXProject "TastyKVOTest" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				6EFB286714DD29C50024E766 /* Debug */,
+				6EFB286814DD29C50024E766 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		6EFB288214DD29E00024E766 /* Build configuration list for PBXNativeTarget "TastyKVOExtensionTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				6EFB288314DD29E00024E766 /* Debug */,
+				6EFB288414DD29E00024E766 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 6EFB286214DD29C50024E766 /* Project object */;
+}
