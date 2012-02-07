@@ -21,7 +21,9 @@
 @implementation ObserverObject
 
 @synthesize flag = _flag,
-            counter = _counter;
+            counter = _counter,
+            target = _target,
+            changeDict = _changeDict;
 
 - (void)flipFlag
 {
@@ -31,6 +33,20 @@
 - (void)increment
 {
     ++_counter;
+}
+
+- (void)onearg:(id)target
+{
+    _target = target;
+}
+
+- (void)first:(id)target second:(NSDictionary *)change
+{
+    _target = target;
+    if (_changeDict != change) {
+        [_changeDict release];
+        _changeDict = [change retain];
+    }
 }
 
 @end

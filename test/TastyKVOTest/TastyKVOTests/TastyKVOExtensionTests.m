@@ -178,6 +178,33 @@ static NSString *kAssociatedKey = @"org.tastykvo.associatedDictKey";
 
 #pragma mark -
 
+- (void)testOneTwoArgSelectors
+{
+    [_target addTastyObserver:_observer
+                   forKeyPath:@"intVar"
+                 withSelector:@selector(onearg:)];
+    STAssertNil([_observer target], @"The observer.target should initialize to nil");
+
+    _target.intVar = 10;
+    STAssertEquals(_target, [_observer target], @"One-argument selector was not called");
+
+    [_target addTastyObserver:_observer
+                   forKeyPath:@"floatVar"
+                 withSelector:@selector(first:second:)];
+    _target.floatVar = 0;
+
+    NSDictionary *change = [_observer changeDict];
+    NSUInteger changeCount = [change count];
+    STAssertEquals(changeCount, 1lu, @"Change-dict got unexpected values (%u): %@", changeCount, change);
+    STAssertEqualObjects([change objectForKey:NSKeyValueChangeKindKey],
+                         [NSNumber numberWithInt:NSKeyValueChangeSetting],
+                         @"Change-dict kind value turned out to be unexpected: %@", change);
+
+    [_target removeTastyObserver:_observer];
+}
+
+#pragma mark -
+
 - (void)testMultiKeyPath
 {
     [_target addTastyObserver:_observer

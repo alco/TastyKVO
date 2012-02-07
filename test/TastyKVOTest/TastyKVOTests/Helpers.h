@@ -20,10 +20,17 @@
 @private
     BOOL _flag;
     int _counter;
+
+    id _target;
+    NSDictionary *_changeDict;
 }
 @property (nonatomic) BOOL flag;
 @property (nonatomic) int counter;
+@property (nonatomic, readonly) id target;
+@property (nonatomic, readonly) NSDictionary *changeDict;
 
 - (void)flipFlag;
 - (void)increment;
+- (void)onearg:(id)target;
+- (void)first:(id)target second:(NSDictionary *)change;
 @end
