@@ -25,7 +25,6 @@
     NSString *_keyPath;
     TastyBlock _block;
     SEL _selector;
-    dispatch_once_t _cancellationPredicate;
 }
 
 @property (nonatomic, copy) TastyBlock block;
@@ -90,10 +89,8 @@ static NSString *const kTastyObserverTrampolineContext =
 
 - (void)stopObserving
 {
-    dispatch_once(&_cancellationPredicate, ^{
-        [_target removeObserver:self forKeyPath:_keyPath];
-        _target = nil;
-    });
+    [_target removeObserver:self forKeyPath:_keyPath];
+    _target = nil;
 }
 
 @end
