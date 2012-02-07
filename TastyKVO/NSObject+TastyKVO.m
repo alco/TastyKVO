@@ -97,6 +97,11 @@ static NSString *const kTastyObserverTrampolineContext =
 
 #pragma mark - The main API implementation
 
+@implementation NSObject(TastyKVOExtension)
+
+static NSString *const kTastyKVOAssociatedDictKey =
+                                            @"org.tastykvo.associatedDictKey";
+
 static dispatch_queue_t _lock_queue()
 {
     static dispatch_queue_t lock_queue = NULL;
@@ -108,16 +113,11 @@ static dispatch_queue_t _lock_queue()
     return lock_queue;
 }
 
-static NSString *const kTastyKVOAssociatedDictKey =
-                                            @"org.tastykvo.associatedDictKey";
-
-@implementation NSObject(TastyKVOExtension)
-
 /**
- * This method shall only be called inside dispatch_sync
+ * This function shall only be called inside dispatch_sync
  */
-- (TastyObserverTrampoline *)_trampolineForObserver:(id)observer
-                                            keyPath:(NSString *)keyPath
+static TastyObserverTrampoline *_new_trampoline(id self, id observer,
+                                                NSString *keyPath)
 {
     // This dictionary is used to store the 'paths' dictionary which, in turn,
     // stores the mapping from observer to its associated trampolines.
@@ -160,7 +160,7 @@ static NSString *const kTastyKVOAssociatedDictKey =
         NSArray *keys = [multiKeyPath componentsSeparatedByString:@"|"];
         for (NSString *key in keys) {
             TastyObserverTrampoline *trampoline =
-                           [self _trampolineForObserver:observer keyPath:key];
+                                         _new_trampoline(self, observer, key);
             trampoline.selector = selector;
         }
     });
@@ -174,16 +174,17 @@ static NSString *const kTastyKVOAssociatedDictKey =
         NSArray *keys = [multiKeyPath componentsSeparatedByString:@"|"];
         for (NSString *key in keys) {
             TastyObserverTrampoline *trampoline =
-                           [self _trampolineForObserver:observer keyPath:key];
+                                         _new_trampoline(self, observer, key);
             trampoline.block = block;
         }
     });
 }
 
-- (void)_addTastyObserver:(id)observer
-              forFirstKey:(NSString *)firstKey
-                     rest:(va_list)args
+static void _add_observer_vargs(id self, id observer, NSString *firstKey,
+                                va_list args)
 {
+    SEL _cmd = @selector(_add_observer_vargs_func);  // used by NSAssert
+
     NSString *multiKey = firstKey;
     while (multiKey) {
         unichar typeChar = [multiKey characterAtIndex:0];
@@ -221,13 +222,13 @@ static NSString *const kTastyKVOAssociatedDictKey =
 {
     va_list args;
     va_start(args, firstKey);
-    [self _addTastyObserver:observer forFirstKey:firstKey rest:args];
+    _add_observer_vargs(self, observer, firstKey, args);
     va_end(args);
 }
 
 #pragma mark - Removing observers
 
-- (void)_cleanupDictForObserver:(NSValue *)observerPtr
+static void _cleanup_observer_dict(id self, NSValue *observerPtr)
 {
     NSMutableDictionary *observerDict =
                    objc_getAssociatedObject(self, kTastyKVOAssociatedDictKey);
@@ -242,9 +243,9 @@ static NSString *const kTastyKVOAssociatedDictKey =
                                  OBJC_ASSOCIATION_RETAIN);
 }
 
-// This method is factored out so that it can be reused later
+// This function is factored out so that it can be reused later
 // in the TastyObserver implementation without dead-locking.
-- (void)_doRemoveTastyObserver:(id)observer
+static void _remove_observer(id self, id observer)
 {
     NSMutableDictionary *observerDict =
                    objc_getAssociatedObject(self, kTastyKVOAssociatedDictKey);
@@ -252,27 +253,11 @@ static NSString *const kTastyKVOAssociatedDictKey =
     NSValue *ptr = [NSValue valueWithPointer:observer];
     NSMutableDictionary *dict = [observerDict objectForKey:ptr];
     if (dict == nil) {
-        NSLog(@"%@: Ignoring attempt to remove non-existent observer %@"
-              " on %@.", NSStringFromSelector(_cmd), observer, self);
+        NSLog(@"Ignoring attempt to remove non-existent observer %@ on %@.",
+              observer, self);
         return;
     }
-    NSArray *keys = [dict allKeys];
-    for (NSString *key in keys) {
-        TastyObserverTrampoline *trampoline = [dict objectForKey:key];
-        [trampoline stopObserving];
-        [dict removeObjectForKey:key];
-    }
-    [self _cleanupDictForObserver:ptr];
-}
-
-- (void)_removeTastyObserver:(id)observer sync:(BOOL)sync
-{
-    if (sync)
-        dispatch_sync(_lock_queue(), ^{
-            [self _doRemoveTastyObserver:observer];
-        });
-    else
-        [self _doRemoveTastyObserver:observer];
+    _cleanup_observer_dict(self, ptr);
 }
 
 #pragma mark
@@ -284,15 +269,16 @@ static NSString *const kTastyKVOAssociatedDictKey =
                    objc_getAssociatedObject(self, kTastyKVOAssociatedDictKey);
 
         NSArray *pointers = [observerDict allKeys];
-        for (NSValue *ptr in pointers) {
-            [self _doRemoveTastyObserver:[ptr pointerValue]];
-        }
+        for (NSValue *ptr in pointers)
+            _remove_observer(self, [ptr pointerValue]);
     });
 }
 
 - (void)removeTastyObserver:(id)observer
 {
-    [self _removeTastyObserver:observer sync:YES];
+    dispatch_sync(_lock_queue(), ^{
+        _remove_observer(self, observer);
+    });
 }
 
 - (void)removeTastyObserver:(id)observer forKeyPath:(NSString *)multiKeyPath
@@ -313,13 +299,10 @@ static NSString *const kTastyKVOAssociatedDictKey =
             return;
         }
         NSArray *keys = [multiKeyPath componentsSeparatedByString:@"|"];
-        for (NSString *key in keys) {
-            TastyObserverTrampoline *trampoline = [dict objectForKey:key];
-            [trampoline stopObserving];
+        for (NSString *key in keys)
             [dict removeObjectForKey:key];
-        }
         if ([dict count] == 0)
-            [self _cleanupDictForObserver:ptr];
+            _cleanup_observer_dict(self, ptr);
     });
 }
 
@@ -393,7 +376,7 @@ static NSString *const kTastyKVOAssociatedTargetKey =
     [self _addObservationTarget:target];
     va_list args;
     va_start(args, firstKey);
-    [target _addTastyObserver:self forFirstKey:firstKey rest:args];
+    _add_observer_vargs(target, self, firstKey, args);
     va_end(args);
 }
 
@@ -407,7 +390,7 @@ static NSString *const kTastyKVOAssociatedTargetKey =
         if (set) {
             for (NSValue *val in set) {
                 id target = [val nonretainedObjectValue];
-                [target _removeTastyObserver:self sync:NO];
+                _remove_observer(target, self);
             }
             [set removeAllObjects];
             objc_setAssociatedObject(self,
