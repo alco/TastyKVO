@@ -180,7 +180,7 @@ typedef void (^TastyBlock)(id self, id target, NSDictionary *change);
  * previously registered itself as an observer with. A perfect candidate for
  * the dealloc method.
  */
-- (void)stopObserving;
+- (void)stopObservingAllTargets;
 
 /**
  * Unsubscribe from KVO notifications emitted by 'target'.

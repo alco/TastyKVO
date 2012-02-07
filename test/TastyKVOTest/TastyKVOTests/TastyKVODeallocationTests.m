@@ -70,7 +70,7 @@ static int targetDeallocFlag;
 
 - (void)dealloc
 {
-    [self stopObserving];
+    [self stopObservingAllTargets];
     observerDeallocFlag += 100;
     [super dealloc];
 }
@@ -206,7 +206,7 @@ static NSString *const kAssociatedTargetKey = @"org.tastykvo.associatedTargetKey
     STAssertNotNil(objc_getAssociatedObject(observer, kAssociatedTargetKey), @"Failed to associate target with observer");
     STAssertNotNil(objc_getAssociatedObject(_target, kAssociatedKey), @"Failed to associate trampoline with target");
 
-    [observer stopObserving];
+    [observer stopObservingAllTargets];
     STAssertNil(objc_getAssociatedObject(observer, kAssociatedTargetKey), @"Did not stop observing properly");
     STAssertNil(objc_getAssociatedObject(_target, kAssociatedKey), @"Did not remove the observer properly");
 

@@ -402,7 +402,7 @@ static NSString *const kTastyKVOAssociatedTargetKey =
 
 #pragma mark
 
-- (void)stopObserving
+- (void)stopObservingAllTargets
 {
     dispatch_sync(_lock_queue(), ^{
         NSMutableSet *set =
