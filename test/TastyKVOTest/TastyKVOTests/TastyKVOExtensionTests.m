@@ -220,6 +220,39 @@ static NSString *kAssociatedKey = @"org.tastykvo.associatedDictKey";
 
 #pragma mark -
 
+- (void)testRemoveAllTastyObservers
+{
+    static const int kObserverCount = 3;
+    ObserverObject *observers[kObserverCount];
+    NSString *keys[] = {
+        @"intVar",
+        @"boolVar",
+        @"message",
+    };
+    for (int i = 0; i < kObserverCount; ++i) {
+        observers[i] = [[ObserverObject alloc] init];
+        [_target addTastyObserver:observers[i] forKeyPath:keys[i] withSelector:@selector(increment)];
+        STAssertEquals([observers[i] counter], 0, @"Observers' counters did not initialize to 0");
+    }
+
+    _target.intVar = 10;
+    _target.boolVar = YES;
+    _target.message = @"hi";
+    for (int i = 0; i < kObserverCount; ++i) {
+        STAssertEquals([observers[i] counter], 1, @"Some of the observers' selectors were not invoked");
+    }
+
+    [_target removeAllTastyObservers];
+    STAssertNil(objc_getAssociatedObject(_target, kAssociatedKey), @"Not all of the observers were removed");
+
+    _target.intVar = -1;
+    _target.boolVar = NO;
+    _target.message = @"bye";
+    for (int i = 0; i < kObserverCount; ++i) {
+        STAssertEquals([observers[i] counter], 1, @"Some of the observers' selectors were invoked after removal");
+    }
+}
+
 - (void)testRemoveTastyObserver
 {
     [_target addTastyObserver:_observer

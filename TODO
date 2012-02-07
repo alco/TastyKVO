@@ -1,7 +1,5 @@
 * Add unit-tests for multi-threaded environment.
 
-* Add unit-tests for -removeAllTastyObservers method.
-
 * Thoroughly test the use case when the target is released before the observer
   has unregistered from KVO notifications.
 
