@@ -71,20 +71,21 @@ cases.
 
 ### Implicitly storing the target ###
 
-If you do not want to store the target, you can use an alternative API provided
-by the library.
+You are not obliged to store the target, the library is already doing it for
+you. Simply use the `stopObservingAllTargets` method to unregister from KVO
+notifications.
 
 ```objc
 - (id)observeExternalNature:(id)nature
 {
     [self observeChangesIn:nature
                  ofKeyPath:@"averageTemperature"
-              withSelector:@selector(maybeBuyCoat)];
+              withSelector:@selector(buyCoatOrShorts)];
 }
 
 - (void)dealloc
 {
-    [self stopObserving];
+    [self stopObservingAllTargets];
     [super dealloc];
 }
 ```
@@ -125,7 +126,9 @@ _The library has not been tested with ARC_.
 It is ***important*** that you unregister an object from KVO notifications
 before it is deallocated. Failing to do so may cause unpredictable consequences
 which can't even be tested reliably. Luckily, **TastyKVO** provides a way to
-automatically enforce this policy.
+enforce this policy automatically.
+
+...
 
 
 ## License & Feedback ##
