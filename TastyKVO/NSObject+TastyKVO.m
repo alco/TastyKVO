@@ -123,7 +123,7 @@ static NSString *const kTastyKVOAssociatedDictKey =
                                             keyPath:(NSString *)keyPath
 {
     // This dictionary is used to store the 'paths' dictionary which, in turn,
-    // stored the mapping from observer to its associated trampolines.
+    // stores the mapping from observer to its associated trampolines.
     NSMutableDictionary *dict =
                    objc_getAssociatedObject(self, kTastyKVOAssociatedDictKey);
     if (dict == nil) {
