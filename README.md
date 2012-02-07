@@ -116,6 +116,18 @@ when it is deallocated.
 ```
 
 
+## Memory Management ##
+
+_The library has not been tested with GC_.
+
+_The library has not been tested with ARC_.
+
+It is ***important*** that you unregister an object from KVO notifications
+before it is deallocated. Failing to do so may cause unpredictable consequences
+which can't even be tested reliably. Luckily, **TastyKVO** provides a way to
+automatically enforce this policy.
+
+
 ## License & Feedback ##
 
 The code is in the public domain. I encourage you to get it, try it, use it,
