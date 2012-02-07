@@ -69,6 +69,12 @@ static NSString *const kTastyObserverTrampolineContext =
     [super dealloc];
 }
 
+- (void)stopObserving
+{
+    [_target removeObserver:self forKeyPath:_keyPath];
+    _target = nil;
+}
+
 - (void)observeValueForKeyPath:(NSString *)keyPath
                       ofObject:(id)object
                         change:(NSDictionary *)change
@@ -87,13 +93,41 @@ static NSString *const kTastyObserverTrampolineContext =
         NSAssert(0, @"No block nor selector provided for %@.", self);
 }
 
-- (void)stopObserving
+@end
+
+#pragma mark - Helper functions
+
+static NSString *const kTastyKVOAssociatedTargetKey =
+                                          @"org.tastykvo.associatedTargetKey";
+
+static void _add_observation_target(id observer, id target)
 {
-    [_target removeObserver:self forKeyPath:_keyPath];
-    _target = nil;
+    NSMutableSet *set =
+             objc_getAssociatedObject(observer, kTastyKVOAssociatedTargetKey);
+    if (set == nil) {
+        set = [[NSMutableSet alloc] init];
+        objc_setAssociatedObject(observer,
+                                 kTastyKVOAssociatedTargetKey,
+                                 set,
+                                 OBJC_ASSOCIATION_RETAIN);
+        [set release];
+    }
+    [set addObject:[NSValue valueWithNonretainedObject:target]];
 }
 
-@end
+static void _remove_observation_target(id observer, id target)
+{
+    NSMutableSet *set =
+             objc_getAssociatedObject(observer, kTastyKVOAssociatedTargetKey);
+    if (set) {
+        [set removeObject:[NSValue valueWithNonretainedObject:target]];
+        if ([set count] == 0)
+            objc_setAssociatedObject(observer,
+                                     kTastyKVOAssociatedTargetKey,
+                                     nil,
+                                     OBJC_ASSOCIATION_RETAIN);
+    }
+}
 
 #pragma mark - The main API implementation
 
@@ -119,6 +153,10 @@ static dispatch_queue_t _lock_queue()
 static TastyObserverTrampoline *_new_trampoline(id self, id observer,
                                                 NSString *keyPath)
 {
+    // Associate 'self' with the observer so that the user doesn't have to
+    // store it herself
+    _add_observation_target(observer, self);
+
     // This dictionary is used to store the 'paths' dictionary which, in turn,
     // stores the mapping from observer to its associated trampolines.
     NSMutableDictionary *dict =
@@ -230,6 +268,8 @@ static void _add_observer_vargs(id self, id observer, NSString *firstKey,
 
 static void _cleanup_observer_dict(id self, NSValue *observerPtr)
 {
+    _remove_observation_target([observerPtr pointerValue], self);
+
     NSMutableDictionary *observerDict =
                    objc_getAssociatedObject(self, kTastyKVOAssociatedDictKey);
     [observerDict removeObjectForKey:observerPtr];
@@ -310,51 +350,12 @@ static void _remove_observer(id self, id observer)
 
 #pragma mark - The alternative API implementation
 
-static NSString *const kTastyKVOAssociatedTargetKey =
-                                          @"org.tastykvo.associatedTargetKey";
-
-@implementation NSObject(TastyKVOObserver)
-
-- (void)_addObservationTarget:(id)target
-{
-    dispatch_sync(_lock_queue(), ^{
-        NSMutableSet *set =
-                 objc_getAssociatedObject(self, kTastyKVOAssociatedTargetKey);
-        if (set == nil) {
-            set = [[NSMutableSet alloc] init];
-            objc_setAssociatedObject(self,
-                                     kTastyKVOAssociatedTargetKey,
-                                     set,
-                                     OBJC_ASSOCIATION_RETAIN);
-            [set release];
-        }
-        [set addObject:[NSValue valueWithNonretainedObject:target]];
-    });
-}
-
-- (void)_removeObservationTarget:(id)target
-{
-    dispatch_sync(_lock_queue(), ^{
-        NSMutableSet *set =
-                 objc_getAssociatedObject(self, kTastyKVOAssociatedTargetKey);
-        if (set) {
-            [set removeObject:[NSValue valueWithNonretainedObject:target]];
-            if ([set count] == 0)
-                objc_setAssociatedObject(self,
-                                         kTastyKVOAssociatedTargetKey,
-                                         nil,
-                                         OBJC_ASSOCIATION_RETAIN);
-        }
-    });
-}
-
-#pragma mark
+@implementation NSObject(TastyObserver)
 
 - (void)observeChangesIn:(id)target
                ofKeyPath:(NSString *)multiKeyPath
             withSelector:(SEL)selector
 {
-    [self _addObservationTarget:target];
     [target addTastyObserver:self
                   forKeyPath:multiKeyPath
                 withSelector:selector];
@@ -364,7 +365,6 @@ static NSString *const kTastyKVOAssociatedTargetKey =
                ofKeyPath:(NSString *)multiKeyPath
                withBlock:(TastyBlock)block
 {
-    [self _addObservationTarget:target];
     [target addTastyObserver:self
                   forKeyPath:multiKeyPath
                    withBlock:block];
@@ -373,7 +373,6 @@ static NSString *const kTastyKVOAssociatedTargetKey =
 - (void)observeChangesIn:(id)target
               ofKeyPaths:(NSString *)firstKey, ...
 {
-    [self _addObservationTarget:target];
     va_list args;
     va_start(args, firstKey);
     _add_observer_vargs(target, self, firstKey, args);
@@ -388,22 +387,21 @@ static NSString *const kTastyKVOAssociatedTargetKey =
         NSMutableSet *set =
                  objc_getAssociatedObject(self, kTastyKVOAssociatedTargetKey);
         if (set) {
-            for (NSValue *val in set) {
+            // Make a copy of all objects because the set will be modified
+            // inside the loop.
+            NSArray *targets = [set allObjects];
+            for (NSValue *val in targets) {
                 id target = [val nonretainedObjectValue];
                 _remove_observer(target, self);
             }
-            [set removeAllObjects];
-            objc_setAssociatedObject(self,
-                                     kTastyKVOAssociatedTargetKey,
-                                     nil,
-                                     OBJC_ASSOCIATION_RETAIN);
+            NSAssert(objc_getAssociatedObject(self, kTastyKVOAssociatedTargetKey) == nil,
+                     @"Not all targets have been removed from observation");
         }
     });
 }
 
 - (void)stopObservingTarget:(id)target
 {
-    [self _removeObservationTarget:target];
     [target removeTastyObserver:self];
 }
 

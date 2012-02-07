@@ -151,10 +151,9 @@ typedef void (^TastyBlock)(id self, id target, NSDictionary *change);
  * observer's point of view. That is to say, the methods defined below allow
  * you to subscribe to KVO notifications from the first person.
  *
- * An important thing to remember is that the methods defined in one or the
- * other category are not interchangeable. That is, you cannot register for KVO
- * notifications using one of the 'addTastyObserver:...' methods and unregister
- * using the 'stopObserving...' methods.
+ * The methods defined in both categories are interchangeable. That is, you can
+ * register for KVO notifications using one of the 'addTastyObserver:...'
+ * methods and unregister using the 'stopObserving...' methods.
  */
 @interface NSObject(TastyObserver)
 
