@@ -1,5 +1,8 @@
 * Add unit-tests for multi-threaded environment.
 
+* Convert TastyKVOExtension's private methods to functions in order to not
+  pollute the NSObject method list.
+
 * Thoroughly test the use case when the target is released before the observer
   has unregistered from KVO notifications.
 
