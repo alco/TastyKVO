@@ -224,31 +224,29 @@ static TastyObserverTrampoline *_new_trampoline(id self, id observer,
 static void _add_observer_vargs(id self, id observer, NSString *firstKey,
                                 va_list args)
 {
-    SEL _cmd = @selector(_add_observer_vargs_func);  // used by NSAssert
-
     NSString *multiKey = firstKey;
     while (multiKey) {
         unichar typeChar = [multiKey characterAtIndex:0];
-        NSAssert(typeChar == ':' || typeChar == '?',
-                 @"Each multi-key must have a type encoding");
+        NSCAssert(typeChar == ':' || typeChar == '?',
+                  @"Each multi-key must have a type encoding");
 
         NSArray *keys = [[multiKey substringFromIndex:1]
                                             componentsSeparatedByString:@"|"];
         BOOL isBlock = (typeChar == '?');
         if (isBlock) {
             TastyBlock block = va_arg(args, typeof(block));
-            NSAssert([block isKindOfClass:[NSObject class]],
-                     @"This is not actually a block. Did you mean to use "
-                      "'?' instead of ':'?");
+            NSCAssert([block isKindOfClass:[NSObject class]],
+                      @"This is not actually a block. Did you mean to use "
+                       "'?' instead of ':'?");
             for (NSString *key in keys)
                 [self addTastyObserver:observer
                             forKeyPath:key
                              withBlock:block];
         } else {
             SEL selector = va_arg(args, typeof(selector));
-            NSAssert(NSStringFromSelector(selector),
-                     @"This is not actually a selector. Did you mean to use "
-                      "':' instead of '?'?");
+            NSCAssert(NSStringFromSelector(selector),
+                      @"This is not actually a selector. Did you mean to use "
+                       "':' instead of '?'?");
             for (NSString *key in keys)
                 [self addTastyObserver:observer
                             forKeyPath:key
