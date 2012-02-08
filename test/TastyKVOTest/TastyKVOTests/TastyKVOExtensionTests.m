@@ -4,7 +4,7 @@
 #import <objc/runtime.h>
 
 
-static NSString *kAssociatedKey = @"org.tastykvo.associatedDictKey";
+static NSString *const kAssociatedKey = @"org.tastykvo.associatedDictKey";
 
 @implementation TastyKVOExtensionTests
 
@@ -88,19 +88,18 @@ static NSString *kAssociatedKey = @"org.tastykvo.associatedDictKey";
 //                                @"The fact that the supposed block turned out to be a selector was not caught.");
 
     [_target addTastyObserver:_observer
-                  forKeyPaths:@":intVar", @selector(whatever),
-                              @":boolVar", @selector(however), nil];
-    STAssertThrowsSpecificNamed((_target.intVar = 0),
-                                NSException,
-                                NSInvalidArgumentException,
-                                @"Non-existant selector turned out to exist after all?");
-    STAssertThrowsSpecificNamed((_target.boolVar = NO),
-                                NSException,
-                                NSInvalidArgumentException,
-                                @"Non-existant selector turned out to exist after all?");
+                  forKeyPaths:@":intVar", @selector(increment),
+                              @":boolVar", @selector(increment), nil];
+    _target.intVar = 0;
+    STAssertEquals([_observer counter], 1, @"KVO notification for intVar was not observed");
+
+    _target.boolVar = YES;
+    STAssertEquals([_observer counter], 2, @"KVO notification for boolVar was not observed");
+
     [_target removeTastyObserver:_observer];
     _target.intVar = 1;
     _target.boolVar = YES;
+    STAssertEquals([_observer counter], 2, @"Observer was not actually removed");
 }
 
 - (void)testAddTastyObserver_forKeyPaths_allBlocks
@@ -195,7 +194,8 @@ static NSString *kAssociatedKey = @"org.tastykvo.associatedDictKey";
 
     NSDictionary *change = [_observer changeDict];
     NSUInteger changeCount = [change count];
-    STAssertEquals(changeCount, 1lu, @"Change-dict got unexpected values (%u): %@", changeCount, change);
+    static NSUInteger uno = 1;
+    STAssertEquals(changeCount, uno, @"Change-dict got unexpected values (%u): %@", changeCount, change);
     STAssertEqualObjects([change objectForKey:NSKeyValueChangeKindKey],
                          [NSNumber numberWithInt:NSKeyValueChangeSetting],
                          @"Change-dict kind value turned out to be unexpected: %@", change);
