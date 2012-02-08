@@ -3,9 +3,6 @@
 * Thoroughly test the use case when the target is released before the observer
   has unregistered from KVO notifications.
 
-* Provide an automatic mechanism for removing an observer by means of -dealloc
-  method swizzling.
-
 * Create a nice sample app for the iOS platform.
 
 * Create a sample app for the Mac OS X platform.

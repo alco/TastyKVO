@@ -7,6 +7,10 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		6EECC57814E15698003A5349 /* NSObject+TastyKVO.m in Sources */ = {isa = PBXBuildFile; fileRef = 6EFB288E14DD2A440024E766 /* NSObject+TastyKVO.m */; settings = {COMPILER_FLAGS = "-DTASTYKVO_ENABLE_AUTOREMOVE -DTASTYKVO_ENABLE_AUTOUNREGISTER"; }; };
+		6EECC57B14E15698003A5349 /* Helpers.m in Sources */ = {isa = PBXBuildFile; fileRef = 6EFB28A714DD5AED0024E766 /* Helpers.m */; };
+		6EECC57C14E15698003A5349 /* TastyKVOAutoRemovalTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 6EECC57314E1538E003A5349 /* TastyKVOAutoRemovalTests.m */; };
+		6EECC57E14E15698003A5349 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6EFB287114DD29E00024E766 /* Cocoa.framework */; };
 		6EFB287214DD29E00024E766 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6EFB287114DD29E00024E766 /* Cocoa.framework */; };
 		6EFB289314DD2A440024E766 /* NSObject+TastyKVO.m in Sources */ = {isa = PBXBuildFile; fileRef = 6EFB288E14DD2A440024E766 /* NSObject+TastyKVO.m */; };
 		6EFB28A014DD59DB0024E766 /* TastyKVOExtensionTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 6EFB289D14DD59DB0024E766 /* TastyKVOExtensionTests.m */; };
@@ -15,6 +19,9 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		6EECC57214E1538E003A5349 /* TastyKVOAutoRemovalTests.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TastyKVOAutoRemovalTests.h; sourceTree = "<group>"; };
+		6EECC57314E1538E003A5349 /* TastyKVOAutoRemovalTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TastyKVOAutoRemovalTests.m; sourceTree = "<group>"; };
+		6EECC58414E15698003A5349 /* TastyKVOAutoremovalTests.octest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = TastyKVOAutoremovalTests.octest; sourceTree = BUILT_PRODUCTS_DIR; };
 		6EFB286E14DD29E00024E766 /* TastyKVOTests.octest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = TastyKVOTests.octest; sourceTree = BUILT_PRODUCTS_DIR; };
 		6EFB287114DD29E00024E766 /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = System/Library/Frameworks/Cocoa.framework; sourceTree = SDKROOT; };
 		6EFB287414DD29E00024E766 /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = System/Library/Frameworks/AppKit.framework; sourceTree = SDKROOT; };
@@ -33,6 +40,14 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
+		6EECC57D14E15698003A5349 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				6EECC57E14E15698003A5349 /* Cocoa.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		6EFB286A14DD29E00024E766 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -58,6 +73,7 @@
 			isa = PBXGroup;
 			children = (
 				6EFB286E14DD29E00024E766 /* TastyKVOTests.octest */,
+				6EECC58414E15698003A5349 /* TastyKVOAutoremovalTests.octest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -100,6 +116,8 @@
 				6EFB289D14DD59DB0024E766 /* TastyKVOExtensionTests.m */,
 				6EFB28A314DD5AB10024E766 /* TastyKVODeallocationTests.h */,
 				6EFB28A414DD5AB10024E766 /* TastyKVODeallocationTests.m */,
+				6EECC57214E1538E003A5349 /* TastyKVOAutoRemovalTests.h */,
+				6EECC57314E1538E003A5349 /* TastyKVOAutoRemovalTests.m */,
 				6EFB28A214DD59E50024E766 /* Supporting Files */,
 			);
 			path = TastyKVOTests;
@@ -117,6 +135,24 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
+		6EECC57614E15698003A5349 /* TastyKVOAutoRemovalTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 6EECC58114E15698003A5349 /* Build configuration list for PBXNativeTarget "TastyKVOAutoRemovalTests" */;
+			buildPhases = (
+				6EECC57714E15698003A5349 /* Sources */,
+				6EECC57D14E15698003A5349 /* Frameworks */,
+				6EECC57F14E15698003A5349 /* Resources */,
+				6EECC58014E15698003A5349 /* ShellScript */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = TastyKVOAutoRemovalTests;
+			productName = TastyKVOExtensionTests;
+			productReference = 6EECC58414E15698003A5349 /* TastyKVOAutoremovalTests.octest */;
+			productType = "com.apple.product-type.bundle";
+		};
 		6EFB286D14DD29E00024E766 /* TastyKVOTests */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = 6EFB288214DD29E00024E766 /* Build configuration list for PBXNativeTarget "TastyKVOTests" */;
@@ -153,11 +189,19 @@
 			projectRoot = "";
 			targets = (
 				6EFB286D14DD29E00024E766 /* TastyKVOTests */,
+				6EECC57614E15698003A5349 /* TastyKVOAutoRemovalTests */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
+		6EECC57F14E15698003A5349 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		6EFB286B14DD29E00024E766 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -168,6 +212,19 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */
+		6EECC58014E15698003A5349 /* ShellScript */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "# Run the unit tests in this test bundle.\n\"${SYSTEM_DEVELOPER_DIR}/Tools/RunUnitTests\"\n";
+		};
 		6EFB286C14DD29E00024E766 /* ShellScript */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
@@ -184,6 +241,16 @@
 /* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
+		6EECC57714E15698003A5349 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				6EECC57814E15698003A5349 /* NSObject+TastyKVO.m in Sources */,
+				6EECC57B14E15698003A5349 /* Helpers.m in Sources */,
+				6EECC57C14E15698003A5349 /* TastyKVOAutoRemovalTests.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		6EFB286914DD29E00024E766 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -198,6 +265,66 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin XCBuildConfiguration section */
+		6EECC58214E15698003A5349 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ARCHS = "$(ARCHS_STANDARD_32_64_BIT)";
+				COPY_PHASE_STRIP = NO;
+				FRAMEWORK_SEARCH_PATHS = "$(DEVELOPER_LIBRARY_DIR)/Frameworks";
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "TastyKVOTests/TastyKVOTests-Prefix.pch";
+				GCC_PREPROCESSOR_DEFINITIONS = DEBUG;
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				INFOPLIST_FILE = "TastyKVOTests/TastyKVOTests-Info.plist";
+				MACOSX_DEPLOYMENT_TARGET = 10.6;
+				ONLY_ACTIVE_ARCH = YES;
+				OTHER_LDFLAGS = (
+					"-framework",
+					SenTestingKit,
+				);
+				PRODUCT_NAME = TastyKVOAutoremovalTests;
+				SDKROOT = macosx;
+				WRAPPER_EXTENSION = octest;
+			};
+			name = Debug;
+		};
+		6EECC58314E15698003A5349 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ARCHS = "$(ARCHS_STANDARD_32_64_BIT)";
+				COPY_PHASE_STRIP = YES;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				FRAMEWORK_SEARCH_PATHS = "$(DEVELOPER_LIBRARY_DIR)/Frameworks";
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "TastyKVOTests/TastyKVOTests-Prefix.pch";
+				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				INFOPLIST_FILE = "TastyKVOTests/TastyKVOTests-Info.plist";
+				MACOSX_DEPLOYMENT_TARGET = 10.6;
+				OTHER_LDFLAGS = (
+					"-framework",
+					SenTestingKit,
+				);
+				PRODUCT_NAME = TastyKVOAutoremovalTests;
+				SDKROOT = macosx;
+				WRAPPER_EXTENSION = octest;
+			};
+			name = Release;
+		};
 		6EFB286714DD29C50024E766 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -273,6 +400,15 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
+		6EECC58114E15698003A5349 /* Build configuration list for PBXNativeTarget "TastyKVOAutoRemovalTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				6EECC58214E15698003A5349 /* Debug */,
+				6EECC58314E15698003A5349 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
 		6EFB286514DD29C50024E766 /* Build configuration list for PBXProject "TastyKVOTest" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (

@@ -95,13 +95,67 @@ static NSString *const kTastyObserverTrampolineContext =
 
 @end
 
-#pragma mark - Helper functions
+#pragma mark - Optional dealloc swizzling
+
+#if defined(TASTYKVO_ENABLE_AUTOREMOVE) || defined(TASTYKVO_ENABLE_AUTOUNREGISTER)
+
+static void _swizzle_dealloc(id obj, SEL new_dealloc_sel, IMP new_dealloc_imp)
+{
+    Class cls = [obj class];
+    if ([cls instancesRespondToSelector:new_dealloc_sel])
+        return;
+
+    SEL dealloc_sel = @selector(dealloc);
+    Method old_dealloc_method = class_getInstanceMethod(cls, dealloc_sel);
+    const char *typeEncoding = method_getTypeEncoding(old_dealloc_method);
+    class_replaceMethod(cls, new_dealloc_sel,
+                        method_getImplementation(old_dealloc_method),
+                        typeEncoding);
+    class_replaceMethod(cls, dealloc_sel, new_dealloc_imp, typeEncoding);
+}
+
+#ifdef TASTYKVO_ENABLE_AUTOUNREGISTER
+#ifndef TASTYKVO_HIDDEN_OBSERVER_DEALLOC_SELECTOR
+#   define TASTYKVO_HIDDEN_OBSERVER_DEALLOC_SELECTOR @selector(_tastyKVO_hidden_observer_dealloc)
+#endif
+static void _extended_observer_dealloc(id self, SEL _cmd)
+{
+    [self stopObservingAllTargets];
+    [self performSelector:TASTYKVO_HIDDEN_OBSERVER_DEALLOC_SELECTOR];
+}
+static void _swizzle_observer_dealloc(id observer)
+{
+    _swizzle_dealloc(observer, TASTYKVO_HIDDEN_OBSERVER_DEALLOC_SELECTOR, (IMP)_extended_observer_dealloc);
+}
+#endif
+
+#ifdef TASTYKVO_ENABLE_AUTOREMOVE
+#ifndef TASTYKVO_HIDDEN_TARGET_DEALLOC_SELECTOR
+#   define TASTYKVO_HIDDEN_TARGET_DEALLOC_SELECTOR @selector(_tastyKVO_hidden_target_dealloc)
+#endif
+static void _extended_target_dealloc(id self, SEL _cmd)
+{
+    [self removeAllTastyObservers];
+    [self performSelector:TASTYKVO_HIDDEN_TARGET_DEALLOC_SELECTOR];
+}
+static void _swizzle_target_dealloc(id target)
+{
+    _swizzle_dealloc(target, TASTYKVO_HIDDEN_TARGET_DEALLOC_SELECTOR, (IMP)_extended_target_dealloc);
+}
+#endif
+
+#endif  // #if defined(TASTYKVO_ENABLE_AUTOREMOVE) || defined(TASTYKVO_ENABLE_AUTOUNREGISTER)
+
+#pragma mark - Association of target with observer
 
 static NSString *const kTastyKVOAssociatedTargetKey =
                                           @"org.tastykvo.associatedTargetKey";
 
 static void _add_observation_target(id observer, id target)
 {
+#ifdef TASTYKVO_ENABLE_AUTOUNREGISTER
+    _swizzle_observer_dealloc(observer);
+#endif
     NSMutableSet *set =
              objc_getAssociatedObject(observer, kTastyKVOAssociatedTargetKey);
     if (set == nil) {
@@ -171,6 +225,10 @@ static TastyObserverTrampoline *_new_trampoline(id self, id observer,
                                  dict,
                                  OBJC_ASSOCIATION_RETAIN);
         [dict release];
+#ifdef TASTYKVO_ENABLE_AUTOREMOVE
+        // Make the target remove all of its observers when it is deallocated.
+        _swizzle_target_dealloc(self);
+#endif
     }
 
     // For each key path the observer is registered for, there will be one
