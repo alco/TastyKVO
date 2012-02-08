@@ -269,13 +269,16 @@ static void _add_observer_vargs(id self, id observer, NSString *firstKey,
 
 #pragma mark - Removing observers
 
-static void _cleanup_observer_dict(id self, NSValue *observerPtr)
+// This function is factored out so that it can be reused later
+// in the TastyObserver implementation without dead-locking.
+static void _remove_observer(id self, id observer)
 {
-    _remove_observation_target([observerPtr pointerValue], self);
+    _remove_observation_target(observer, self);
 
     NSMutableDictionary *observerDict =
                    objc_getAssociatedObject(self, kTastyKVOAssociatedDictKey);
-    [observerDict removeObjectForKey:observerPtr];
+    NSValue *ptr = [NSValue valueWithPointer:observer];
+    [observerDict removeObjectForKey:ptr];
 
     // Due to a bug in the obj-c runtime, this dictionary does not get
     // cleaned up on release when running without GC.
@@ -284,23 +287,6 @@ static void _cleanup_observer_dict(id self, NSValue *observerPtr)
                                  kTastyKVOAssociatedDictKey,
                                  nil,
                                  OBJC_ASSOCIATION_RETAIN);
-}
-
-// This function is factored out so that it can be reused later
-// in the TastyObserver implementation without dead-locking.
-static void _remove_observer(id self, id observer)
-{
-    NSMutableDictionary *observerDict =
-                   objc_getAssociatedObject(self, kTastyKVOAssociatedDictKey);
-
-    NSValue *ptr = [NSValue valueWithPointer:observer];
-    NSMutableDictionary *dict = [observerDict objectForKey:ptr];
-    if (dict == nil) {
-        NSLog(@"Ignoring attempt to remove non-existent observer %@ on %@.",
-              observer, self);
-        return;
-    }
-    _cleanup_observer_dict(self, ptr);
 }
 
 #pragma mark
@@ -345,7 +331,7 @@ static void _remove_observer(id self, id observer)
         for (NSString *key in keys)
             [dict removeObjectForKey:key];
         if ([dict count] == 0)
-            _cleanup_observer_dict(self, ptr);
+            _remove_observer(self, observer);
     });
 }
 
