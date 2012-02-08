@@ -149,6 +149,9 @@ static dispatch_queue_t _lock_queue()
 
 /**
  * This function shall only be called inside dispatch_sync
+ *
+ * The 'self' argument represents the target to which 'observer' is being
+ * added.
  */
 static TastyObserverTrampoline *_new_trampoline(id self, id observer,
                                                 NSString *keyPath)
