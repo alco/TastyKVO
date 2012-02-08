@@ -107,15 +107,6 @@ TastyBlock block = ...;
 [target addTastyObserver:self forKeyPath:@"anotherProperty" withBlock:block];
 ```
 
-### Unregister automatically ###
-
-There is also a way to automatically ensure that your object stops observing
-when it is deallocated.
-
-```objc
-// Coming soon...
-```
-
 
 ## Memory Management ##
 
@@ -128,7 +119,30 @@ before it is deallocated. Failing to do so may cause unpredictable consequences
 which can't even be tested reliably. Luckily, **TastyKVO** provides a way to
 enforce this policy automatically.
 
-...
+There are two macros that you can define in order to enable automatic observer
+removal.
+
+1. `TASTYKVO_ENABLE_AUTOREMOVE`. When defined, each target (the object which
+   has at least one observer) will remove all of its observers prior to
+   deallocation.
+
+2. `TASTYKVO_ENABLE_AUTOUNREGISTER`. When defined, each observer will stop
+   observing all of its targets prior to deallocation.
+
+When you define both macros, either at the top level in your project's build
+settings or for the single file `NSObject+TastyKVO.m`, you no longer need to
+call any of the `stopObserving...` or `removeTastyObserver...` methods.
+
+### Implementation details ###
+
+Under the hood, the automatic removal and unregistration are implemented by
+means of swizzling the `dealloc` method. That is, when you register an observer
+via one of the `addTastyObserver...` or `observeChangesIn...` methods, the
+object's own implementation of dealloc is replaced with a custom one (the
+object being the target, the observer, or both, depending on the macros
+defined). This new implementation calls `removeAllTastyObservers` or
+`stopObservingAllTargets` first and then invokes the original dealloc method of
+the object.
 
 
 ## License & Feedback ##
