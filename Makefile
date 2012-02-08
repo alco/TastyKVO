@@ -1,4 +1,4 @@
 .PHONY: test
 
 test:
-	xcodebuild -project test/TastyKVOTest/TastyKVOTest.xcodeproj
+	xcodebuild -project test/TastyKVOTest/TastyKVOTest.xcodeproj -alltargets >test_output.txt
