@@ -105,16 +105,7 @@ static NSString *const kAssociatedTargetKey = @"org.tastykvo.associatedTargetKey
 
 #pragma mark -
 
-- (void)testTargetDealloc_1
-{
-    STAssertEquals(targetDeallocFlag, 0, @"");
-    TargetObject *target = [[TargetObject alloc] init];
-    [target addTastyObserver:self forKeyPath:@"message" withSelector:@selector(whatever)];
-    [target release];
-    STAssertEquals(targetDeallocFlag, 1, @"Target's dealloc was not called");
-}
-
-- (void)testTargetDealloc_2
+- (void)testTargetDealloc
 {
     STAssertEquals(targetDeallocFlag, 0, @"");
     TargetObject *target = [[TargetObject alloc] init];
@@ -124,16 +115,7 @@ static NSString *const kAssociatedTargetKey = @"org.tastykvo.associatedTargetKey
     STAssertEquals(targetDeallocFlag, 1, @"Target's dealloc was not called");
 }
 
-- (void)testObserverDealloc_1
-{
-    STAssertEquals(observerDeallocFlag, 0, @"");
-    ObserverObject *observer = [[ObserverObject alloc] init];
-    [_target addTastyObserver:observer forKeyPath:@"intVar" withSelector:@selector(increment)];
-    [observer release];
-    STAssertEquals(observerDeallocFlag, 1, @"Observer's dealloc was not called");
-}
-
-- (void)testObserverDealloc_2
+- (void)testObserverDealloc
 {
     STAssertEquals(observerDeallocFlag, 0, @"");
     ObserverObject *observer = [[ObserverObject alloc] init];
@@ -150,6 +132,7 @@ static NSString *const kAssociatedTargetKey = @"org.tastykvo.associatedTargetKey
     TargetObject *target = [[TargetObject alloc] init];
     ObserverObject *observer = [[ObserverObject alloc] init];
     [target addTastyObserver:observer forKeyPath:@"intVar" withSelector:@selector(increment)];
+    [target removeTastyObserver:observer];
     [target release];
     STAssertEquals(targetDeallocFlag, 1, @"Target's dealloc was not called");
     [observer release];
@@ -163,7 +146,7 @@ static NSString *const kAssociatedTargetKey = @"org.tastykvo.associatedTargetKey
     TargetObject *target = [[TargetObject alloc] init];
     ObserverObject *observer = [[ObserverObject alloc] init];
     [target addTastyObserver:observer forKeyPath:@"intVar" withSelector:@selector(increment)];
-
+    [target removeTastyObserver:observer];
     // A different release order this time
     [observer release];
     STAssertEquals(observerDeallocFlag, 1, @"Observer's dealloc was not called");
