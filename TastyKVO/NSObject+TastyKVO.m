@@ -103,21 +103,26 @@ static void _swizzle_dealloc(id obj, SEL new_dealloc_sel, IMP new_dealloc_imp)
 {
     Class cls = [obj class];
     if ([cls instancesRespondToSelector:new_dealloc_sel])
+        // We have presumably swizzled the dealloc earlier. Or this could be a
+        // name clash with an existing method in the user's code, though
+        // unlikely.
         return;
 
     SEL dealloc_sel = @selector(dealloc);
     Method old_dealloc_method = class_getInstanceMethod(cls, dealloc_sel);
     const char *typeEncoding = method_getTypeEncoding(old_dealloc_method);
+    // Rename the original dealloc
     class_replaceMethod(cls, new_dealloc_sel,
                         method_getImplementation(old_dealloc_method),
                         typeEncoding);
+    // Replace the dealloc implementation with a new one
     class_replaceMethod(cls, dealloc_sel, new_dealloc_imp, typeEncoding);
 }
 
 #ifdef TASTYKVO_ENABLE_AUTOUNREGISTER
-#ifndef TASTYKVO_HIDDEN_OBSERVER_DEALLOC_SELECTOR
+#  ifndef TASTYKVO_HIDDEN_OBSERVER_DEALLOC_SELECTOR
 #   define TASTYKVO_HIDDEN_OBSERVER_DEALLOC_SELECTOR @selector(_tastyKVO_hidden_observer_dealloc)
-#endif
+#  endif
 static void _extended_observer_dealloc(id self, SEL _cmd)
 {
     [self stopObservingAllTargets];
@@ -130,9 +135,9 @@ static void _swizzle_observer_dealloc(id observer)
 #endif
 
 #ifdef TASTYKVO_ENABLE_AUTOREMOVE
-#ifndef TASTYKVO_HIDDEN_TARGET_DEALLOC_SELECTOR
+#  ifndef TASTYKVO_HIDDEN_TARGET_DEALLOC_SELECTOR
 #   define TASTYKVO_HIDDEN_TARGET_DEALLOC_SELECTOR @selector(_tastyKVO_hidden_target_dealloc)
-#endif
+#  endif
 static void _extended_target_dealloc(id self, SEL _cmd)
 {
     [self removeAllTastyObservers];
@@ -195,8 +200,7 @@ static dispatch_queue_t _lock_queue()
     static dispatch_queue_t lock_queue = NULL;
     static dispatch_once_t creation_predicate = 0;
     dispatch_once(&creation_predicate, ^{
-        lock_queue = dispatch_queue_create(
-            "org.tastykvo.lockQueue", 0);
+        lock_queue = dispatch_queue_create("org.tastykvo.lockQueue", 0);
     });
     return lock_queue;
 }
@@ -397,26 +401,17 @@ static void _remove_observer(id self, id observer)
 
 @implementation NSObject(TastyObserver)
 
-- (void)observeChangesIn:(id)target
-               ofKeyPath:(NSString *)multiKeyPath
-            withSelector:(SEL)selector
+- (void)observeChangesIn:(id)target ofKeyPath:(NSString *)multiKeyPath withSelector:(SEL)selector
 {
-    [target addTastyObserver:self
-                  forKeyPath:multiKeyPath
-                withSelector:selector];
+    [target addTastyObserver:self forKeyPath:multiKeyPath withSelector:selector];
 }
 
-- (void)observeChangesIn:(id)target
-               ofKeyPath:(NSString *)multiKeyPath
-               withBlock:(TastyBlock)block
+- (void)observeChangesIn:(id)target ofKeyPath:(NSString *)multiKeyPath withBlock:(TastyBlock)block
 {
-    [target addTastyObserver:self
-                  forKeyPath:multiKeyPath
-                   withBlock:block];
+    [target addTastyObserver:self forKeyPath:multiKeyPath withBlock:block];
 }
 
-- (void)observeChangesIn:(id)target
-              ofKeyPaths:(NSString *)firstKey, ...
+- (void)observeChangesIn:(id)target ofKeyPaths:(NSString *)firstKey, ...
 {
     va_list args;
     va_start(args, firstKey);
