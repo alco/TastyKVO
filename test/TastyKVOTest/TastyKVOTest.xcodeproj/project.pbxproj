@@ -7,7 +7,9 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		6EECC57814E15698003A5349 /* NSObject+TastyKVO.m in Sources */ = {isa = PBXBuildFile; fileRef = 6EFB288E14DD2A440024E766 /* NSObject+TastyKVO.m */; settings = {COMPILER_FLAGS = "-DTASTYKVO_ENABLE_AUTOREMOVE -DTASTYKVO_ENABLE_AUTOUNREGISTER"; }; };
+		6E5FCA9514F7F971006E3150 /* TastyKVOExtensionTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 6EFB289D14DD59DB0024E766 /* TastyKVOExtensionTests.m */; };
+		6E5FCA9814F7F974006E3150 /* TastyKVODeallocationTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 6EFB28A414DD5AB10024E766 /* TastyKVODeallocationTests.m */; };
+		6EECC57814E15698003A5349 /* NSObject+TastyKVO.m in Sources */ = {isa = PBXBuildFile; fileRef = 6EFB288E14DD2A440024E766 /* NSObject+TastyKVO.m */; settings = {COMPILER_FLAGS = "-DTASTYKVO_ENABLE_AUTOREMOVE -DTASTYKVO_ENABLE_AUTOUNREGISTER -DTASTYKVO_USE_SWIZZLING"; }; };
 		6EECC57B14E15698003A5349 /* Helpers.m in Sources */ = {isa = PBXBuildFile; fileRef = 6EFB28A714DD5AED0024E766 /* Helpers.m */; };
 		6EECC57C14E15698003A5349 /* TastyKVOAutoRemovalTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 6EECC57314E1538E003A5349 /* TastyKVOAutoRemovalTests.m */; };
 		6EECC57E14E15698003A5349 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6EFB287114DD29E00024E766 /* Cocoa.framework */; };
@@ -248,6 +250,8 @@
 				6EECC57814E15698003A5349 /* NSObject+TastyKVO.m in Sources */,
 				6EECC57B14E15698003A5349 /* Helpers.m in Sources */,
 				6EECC57C14E15698003A5349 /* TastyKVOAutoRemovalTests.m in Sources */,
+				6E5FCA9514F7F971006E3150 /* TastyKVOExtensionTests.m in Sources */,
+				6E5FCA9814F7F974006E3150 /* TastyKVODeallocationTests.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -328,12 +332,14 @@
 		6EFB286714DD29C50024E766 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				GCC_ENABLE_OBJC_GC = unsupported;
 			};
 			name = Debug;
 		};
 		6EFB286814DD29C50024E766 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				GCC_ENABLE_OBJC_GC = unsupported;
 			};
 			name = Release;
 		};

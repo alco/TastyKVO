@@ -11,16 +11,19 @@ static NSString *const kAssociatedTargetKey = @"org.tastykvo.associatedTargetKey
 static int targetDeallocFlag;
 static int observerDeallocFlag;
 
-@implementation TargetObject(AugmentedDealloc)
+@interface CustomTargetObject: TargetObject
+@end
+@implementation CustomTargetObject
 - (void)dealloc
 {
     ++targetDeallocFlag;
-    [_message release];
     [super dealloc];
 }
 @end
 
-@implementation ObserverObject(AugmentedDealloc)
+@interface CustomObserverObject: ObserverObject
+@end
+@implementation CustomObserverObject
 - (void)dealloc
 {
     ++observerDeallocFlag;
@@ -69,7 +72,9 @@ static int observerDeallocFlag;
     STAssertNil(objc_getAssociatedObject(observer, kAssociatedTargetKey), @"The observer was not automatically removed");
     STAssertNil(objc_getAssociatedObject(secondObserver, kAssociatedTargetKey), @"The secondObserver was not automatically removed");
     
+    [observer stopObservingAllTargets];  // mustn't crash
     [observer release];
+    [secondObserver stopObservingAllTargets];  // mustn't crash
     [secondObserver release];
 }
 
@@ -92,18 +97,21 @@ static int observerDeallocFlag;
     [target1 release];
     [target2 release];
     
-    STAssertNil(objc_getAssociatedObject(observer, kAssociatedTargetKey), @"The observer was not automatically removed");    
+    STAssertNil(objc_getAssociatedObject(observer, kAssociatedTargetKey), @"The observer was not automatically removed");
+    [observer stopObservingAllTargets];  // mustn't crash
     [observer release];
 }
 
 - (void)testOwnDealloc
 {
     ObserverObject *observer = [[ObserverObject alloc] init];
-    TargetObject *target = [[TargetObject alloc] init];
+    TargetObject *target = [[CustomTargetObject alloc] init];
     [target addTastyObserver:observer forKeyPath:@"intVar" withSelector:@selector(increment)];
     [target release];
     STAssertEquals(targetDeallocFlag, 1, @"Target's own dealloc was not called");
     STAssertNil(objc_getAssociatedObject(observer, kAssociatedTargetKey), @"The observer was not automatically removed");
+    // Check that we don't crash
+    [observer stopObservingAllTargets];
     [observer release];
 }
 
@@ -113,12 +121,14 @@ static int observerDeallocFlag;
     TargetObject *target = [[TargetObject alloc] init];
     [target addTastyObserver:observer forKeyPath:@"intVar" withSelector:@selector(increment)];
     [observer release];
+    // Check that we don't crash
+    target.intVar = 10;
     [target release];
 }
 
 - (void)testObserverAndTargetInOneObject
 {
-    ObserverObject *obj = [[ObserverObject alloc] init];
+    ObserverObject *obj = [[CustomObserverObject alloc] init];
     ObserverObject *observer = [[ObserverObject alloc] init];
     TargetObject *target = [[TargetObject alloc] init];
     
