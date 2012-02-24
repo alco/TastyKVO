@@ -112,7 +112,7 @@ TastyBlock block = ...;
 
 _The library has not been tested with ARC_.
 
-The library has not been tested with GC somewhat, but not in production code.
+The library has been tested with GC somewhat, but not in production code.
 
 It is ***important*** that you unregister an object from KVO notifications
 before it is deallocated. Similarly, a target must remove all of its observers
