@@ -375,10 +375,9 @@ static void _add_observer_vargs(id self, id observer, NSString *firstKey,
 
 // This function is factored out so that it can be reused later
 // in the TastyObserver implementation without dead-locking.
-static void _remove_observer(id target, id observer, BOOL mutual)
+static void _remove_observer(id target, id observer)
 {
-    if (mutual)
-        _remove_observation_target(observer, target);
+    _remove_observation_target(observer, target);
 
     NSMutableDictionary *observerDict =
                    objc_getAssociatedObject(target, kTastyKVOAssociatedDictKey);
@@ -404,7 +403,7 @@ static void _remove_observer(id target, id observer, BOOL mutual)
                    objc_getAssociatedObject(self, kTastyKVOAssociatedDictKey);
 
         for (NSValue *ptr in [observerDict allKeys])
-            _remove_observer(self, [ptr pointerValue], YES);
+            _remove_observer(self, [ptr pointerValue]);
         /*/
         // Isn't it a simpler approach?
         // The _remove_observation_target is called automatically in the
@@ -421,7 +420,7 @@ static void _remove_observer(id target, id observer, BOOL mutual)
 - (void)removeTastyObserver:(id)observer
 {
     dispatch_sync(_lock_queue(), ^{
-        _remove_observer(self, observer, YES);
+        _remove_observer(self, observer);
     });
 }
 
@@ -446,7 +445,7 @@ static void _remove_observer(id target, id observer, BOOL mutual)
         for (NSString *key in keys)
             [dict removeObjectForKey:key];
         if ([dict count] == 0)
-            _remove_observer(self, observer, YES);
+            _remove_observer(self, observer);
     });
 }
 
@@ -481,7 +480,7 @@ static void _remove_observer(id target, id observer, BOOL mutual)
     dispatch_sync(_lock_queue(), ^{
         NSMutableSet *set = objc_getAssociatedObject(self, kTastyKVOAssociatedTargetKey);
         for (NSValue *ptr in [set allObjects])
-            _remove_observer([ptr pointerValue], self, YES);
+            _remove_observer([ptr pointerValue], self);
         [set removeAllObjects];
         objc_setAssociatedObject(self, kTastyKVOAssociatedTargetKey, nil, OBJC_ASSOCIATION_RETAIN);
     });
