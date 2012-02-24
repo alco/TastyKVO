@@ -99,7 +99,6 @@ static NSString *const kTastyObserverTrampolineContext =
 
 #pragma mark - Optional dealloc swizzling
 
-#ifdef TASTYKVO_USE_SWIZZLING
 static void _swizzle_dealloc(id obj, SEL new_dealloc_sel, IMP new_dealloc_imp)
 {
     Class cls = [obj class];
@@ -151,30 +150,6 @@ static void _swizzle_target_dealloc(id target)
     _swizzle_dealloc(target, @selector(TASTYKVO_HIDDEN_TARGET_DEALLOC_SELECTOR), (IMP)_extended_target_dealloc);
 }
 #endif
-
-#else   // #ifdef TASTYKVO_USE_SWIZZLING
-
-#pragma mark - Optional runtime trickery to automate memory management
-
-#ifdef TASTYKVO_ENABLE_AUTOUNREGISTER
-#  define TASTYKVO_AUTOUNREGISTER(x) _schedule_unregister(x)
-static void _schedule_unregister(id observer)
-{
-//    static NSString *const assocKey = @"org.tastykvo.associatedObserverAutounregisterKey";
-//    objc_setAssociatedObject(observer, assocKey, ..., OBJC_ASSOCIATION_RETAIN);
-}
-#endif
-
-#ifdef TASTYKVO_ENABLE_AUTOREMOVE
-#  define TASTYKVO_AUTOREMOVE(x) _schedule_remove(x)
-static void _schedule_remove(id target)
-{
-//    static NSString *const assocKey = @"org.tastykvo.associatedObserverAutoremoveKey";
-//    objc_setAssociatedObject(target, assocKey, ..., OBJC_ASSOCIATION_RETAIN);
-}
-#endif
-
-#endif  // #ifdef TASTYKVO_USE_SWIZZLING
 
 #else   // #if defined(TASTYKVO_ENABLE_AUTOREMOVE) || defined(TASTYKVO_ENABLE_AUTOUNREGISTER)
 
