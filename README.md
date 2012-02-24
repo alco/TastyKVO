@@ -115,7 +115,8 @@ _The library has not been tested with ARC_.
 The library has not been tested with GC somewhat, but not in production code.
 
 It is ***important*** that you unregister an object from KVO notifications
-before it is deallocated. Failing to do so may cause unpredictable consequences
+before it is deallocated. Similarly, a target must remove all of its observers
+prior to deallocation. Failing to do so may cause unpredictable consequences
 which can't even be tested reliably. Luckily, **TastyKVO** provides a way to
 enforce this policy automatically.
 
@@ -130,19 +131,19 @@ removal.
    observing all of its targets prior to deallocation.
 
 When you define both macros, either at the top level in your project's build
-settings or for the single file `NSObject+TastyKVO.m`, you no longer need to
-call any of the `stopObserving...` or `removeTastyObserver...` methods.
+settings or only for the file _NSObject+TastyKVO.m_, you no longer need to call
+any of the `stopObserving...` or `removeTastyObserver...` methods.
 
 ### Implementation details ###
 
 Under the hood, the automatic removal and unregistration are implemented by
 means of swizzling the `dealloc` method. That is, when you register an observer
 via one of the `addTastyObserver...` or `observeChangesIn...` methods, the
-object's own implementation of dealloc is replaced with a custom one (the
+object's own implementation of `dealloc` is replaced with a custom one (the
 object being the target, the observer, or both, depending on the macros
 defined). This new implementation calls `removeAllTastyObservers` or
-`stopObservingAllTargets` first and then invokes the original dealloc method of
-the object.
+`stopObservingAllTargets` first and then invokes the original `dealloc` method
+of the object.
 
 
 ## License & Feedback ##
