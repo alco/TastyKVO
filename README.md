@@ -110,9 +110,9 @@ TastyBlock block = ...;
 
 ## Memory Management ##
 
-_The library has not been tested with GC_.
-
 _The library has not been tested with ARC_.
+
+The library has not been tested with GC somewhat, but not in production code.
 
 It is ***important*** that you unregister an object from KVO notifications
 before it is deallocated. Failing to do so may cause unpredictable consequences

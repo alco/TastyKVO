@@ -357,6 +357,14 @@ static void _remove_observer(id target, id observer)
     NSMutableDictionary *observerDict =
                    objc_getAssociatedObject(target, kTastyKVOAssociatedDictKey);
     NSValue *ptr = [NSValue valueWithPointer:observer];
+
+    // Call 'stopObserving' on each trampoline manually because trampolines
+    // might not get deallocated immediately with GC turned on.
+    NSDictionary *pathDict = [observerDict objectForKey:ptr];
+    for (id key in pathDict) {
+        TastyObserverTrampoline *trampoline = [pathDict objectForKey:key];
+        [trampoline stopObserving];
+    }
     [observerDict removeObjectForKey:ptr];
 
     // Due to a bug in the obj-c runtime, this dictionary does not get
@@ -417,8 +425,13 @@ static void _remove_observer(id target, id observer)
             return;
         }
         NSArray *keys = [multiKeyPath componentsSeparatedByString:@"|"];
-        for (NSString *key in keys)
+        // Again, call 'stopObserving' on each trampoline to work properly
+        // with GC turned on.
+        for (NSString *key in keys) {
+            TastyObserverTrampoline *trampoline = [dict objectForKey:key];
+            [trampoline stopObserving];
             [dict removeObjectForKey:key];
+        }
         if ([dict count] == 0)
             _remove_observer(self, observer);
     });
