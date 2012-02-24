@@ -95,10 +95,11 @@ static NSString *const kTastyObserverTrampolineContext =
 
 @end
 
-#pragma mark - Optional dealloc swizzling
-
 #if defined(TASTYKVO_ENABLE_AUTOREMOVE) || defined(TASTYKVO_ENABLE_AUTOUNREGISTER)
 
+#pragma mark - Optional dealloc swizzling
+
+#ifdef TASTYKVO_USE_SWIZZLING
 static void _swizzle_dealloc(id obj, SEL new_dealloc_sel, IMP new_dealloc_imp)
 {
     Class cls = [obj class];
@@ -120,47 +121,92 @@ static void _swizzle_dealloc(id obj, SEL new_dealloc_sel, IMP new_dealloc_imp)
 }
 
 #ifdef TASTYKVO_ENABLE_AUTOUNREGISTER
+#  define TASTYKVO_AUTOUNREGISTER(x) _swizzle_observer_dealloc(x)
 #  ifndef TASTYKVO_HIDDEN_OBSERVER_DEALLOC_SELECTOR
-#   define TASTYKVO_HIDDEN_OBSERVER_DEALLOC_SELECTOR @selector(_tastyKVO_hidden_observer_dealloc)
+#    define TASTYKVO_HIDDEN_OBSERVER_DEALLOC_SELECTOR _tastyKVO_hidden_observer_dealloc
 #  endif
 static void _extended_observer_dealloc(id self, SEL _cmd)
 {
     [self stopObservingAllTargets];
-    [self performSelector:TASTYKVO_HIDDEN_OBSERVER_DEALLOC_SELECTOR];
+    [self performSelector:@selector(TASTYKVO_HIDDEN_OBSERVER_DEALLOC_SELECTOR)];
 }
 static void _swizzle_observer_dealloc(id observer)
 {
-    _swizzle_dealloc(observer, TASTYKVO_HIDDEN_OBSERVER_DEALLOC_SELECTOR, (IMP)_extended_observer_dealloc);
+    _swizzle_dealloc(observer, @selector(TASTYKVO_HIDDEN_OBSERVER_DEALLOC_SELECTOR), (IMP)_extended_observer_dealloc);
 }
 #endif
 
 #ifdef TASTYKVO_ENABLE_AUTOREMOVE
+#  define TASTYKVO_AUTOREMOVE(x) _swizzle_target_dealloc(x)
 #  ifndef TASTYKVO_HIDDEN_TARGET_DEALLOC_SELECTOR
-#   define TASTYKVO_HIDDEN_TARGET_DEALLOC_SELECTOR @selector(_tastyKVO_hidden_target_dealloc)
+#    define TASTYKVO_HIDDEN_TARGET_DEALLOC_SELECTOR _tastyKVO_hidden_target_dealloc
 #  endif
 static void _extended_target_dealloc(id self, SEL _cmd)
 {
     [self removeAllTastyObservers];
-    [self performSelector:TASTYKVO_HIDDEN_TARGET_DEALLOC_SELECTOR];
+    [self performSelector:@selector(TASTYKVO_HIDDEN_TARGET_DEALLOC_SELECTOR)];
 }
 static void _swizzle_target_dealloc(id target)
 {
-    _swizzle_dealloc(target, TASTYKVO_HIDDEN_TARGET_DEALLOC_SELECTOR, (IMP)_extended_target_dealloc);
+    _swizzle_dealloc(target, @selector(TASTYKVO_HIDDEN_TARGET_DEALLOC_SELECTOR), (IMP)_extended_target_dealloc);
 }
 #endif
 
-#endif  // #if defined(TASTYKVO_ENABLE_AUTOREMOVE) || defined(TASTYKVO_ENABLE_AUTOUNREGISTER)
+#else   // #ifdef TASTYKVO_USE_SWIZZLING
+
+#pragma mark - Optional runtime trickery to automate memory management
+
+#ifdef TASTYKVO_ENABLE_AUTOUNREGISTER
+#  define TASTYKVO_AUTOUNREGISTER(x) _schedule_unregister(x)
+static void _schedule_unregister(id observer)
+{
+//    static NSString *const assocKey = @"org.tastykvo.associatedObserverAutounregisterKey";
+//    objc_setAssociatedObject(observer, assocKey, ..., OBJC_ASSOCIATION_RETAIN);
+}
+#endif
+
+#ifdef TASTYKVO_ENABLE_AUTOREMOVE
+#  define TASTYKVO_AUTOREMOVE(x) _schedule_remove(x)
+static void _schedule_remove(id target)
+{
+//    static NSString *const assocKey = @"org.tastykvo.associatedObserverAutoremoveKey";
+//    objc_setAssociatedObject(target, assocKey, ..., OBJC_ASSOCIATION_RETAIN);
+}
+#endif
+
+#endif  // #ifdef TASTYKVO_USE_SWIZZLING
+
+#else   // #if defined(TASTYKVO_ENABLE_AUTOREMOVE) || defined(TASTYKVO_ENABLE_AUTOUNREGISTER)
+
+#define TASTYKVO_AUTOUNREGISTER(x)
+#define TASTYKVO_AUTOREMOVE(x)
+
+#endif
 
 #pragma mark - Association of target with observer
+
+/*
+ * When we add an observer to a target, we set up to associations (through
+ * objc_setAssociatedObject).
+ *
+ * The first one is attached to the target enabling it to remove all of its
+ * observers without forcing the user to store references to those observers.
+ *
+ * Notice that an observer can be removed even if it no longer exists.
+ * Although, the runtime will log a warning if an observer is deallocated
+ * without unregistering from observation, our target will still have a pointer
+ * to that observer.
+ *
+ * The second association is attached to the observer enabling it, in a similar
+ * fasion, to stop observing all targets.
+ */
 
 static NSString *const kTastyKVOAssociatedTargetKey =
                                           @"org.tastykvo.associatedTargetKey";
 
 static void _add_observation_target(id observer, id target)
 {
-#ifdef TASTYKVO_ENABLE_AUTOUNREGISTER
-    _swizzle_observer_dealloc(observer);
-#endif
+    TASTYKVO_AUTOUNREGISTER(observer);
     NSMutableSet *set =
              objc_getAssociatedObject(observer, kTastyKVOAssociatedTargetKey);
     if (set == nil) {
@@ -171,7 +217,7 @@ static void _add_observation_target(id observer, id target)
                                  OBJC_ASSOCIATION_RETAIN);
         [set release];
     }
-    [set addObject:[NSValue valueWithNonretainedObject:target]];
+    [set addObject:[NSValue valueWithPointer:target]];
 }
 
 static void _remove_observation_target(id observer, id target)
@@ -179,7 +225,7 @@ static void _remove_observation_target(id observer, id target)
     NSMutableSet *set =
              objc_getAssociatedObject(observer, kTastyKVOAssociatedTargetKey);
     if (set) {
-        [set removeObject:[NSValue valueWithNonretainedObject:target]];
+        [set removeObject:[NSValue valueWithPointer:target]];
         if ([set count] == 0)
             objc_setAssociatedObject(observer,
                                      kTastyKVOAssociatedTargetKey,
@@ -197,12 +243,12 @@ static NSString *const kTastyKVOAssociatedDictKey =
 
 static dispatch_queue_t _lock_queue()
 {
-    static dispatch_queue_t lock_queue = NULL;
-    static dispatch_once_t creation_predicate = 0;
-    dispatch_once(&creation_predicate, ^{
-        lock_queue = dispatch_queue_create("org.tastykvo.lockQueue", 0);
+    static dispatch_queue_t queue = NULL;
+    static dispatch_once_t pred = 0;
+    dispatch_once(&pred, ^{
+        queue = dispatch_queue_create("org.tastykvo.lockQueue", 0);
     });
-    return lock_queue;
+    return queue;
 }
 
 /**
@@ -215,7 +261,7 @@ static TastyObserverTrampoline *_new_trampoline(id self, id observer,
                                                 NSString *keyPath)
 {
     // Associate 'self' with the observer so that the user doesn't have to
-    // store it herself
+    // store it
     _add_observation_target(observer, self);
 
     // This dictionary is used to store the 'paths' dictionary which, in turn,
@@ -229,10 +275,8 @@ static TastyObserverTrampoline *_new_trampoline(id self, id observer,
                                  dict,
                                  OBJC_ASSOCIATION_RETAIN);
         [dict release];
-#ifdef TASTYKVO_ENABLE_AUTOREMOVE
         // Make the target remove all of its observers when it is deallocated.
-        _swizzle_target_dealloc(self);
-#endif
+        TASTYKVO_AUTOREMOVE(self);
     }
 
     // For each key path the observer is registered for, there will be one
@@ -331,19 +375,20 @@ static void _add_observer_vargs(id self, id observer, NSString *firstKey,
 
 // This function is factored out so that it can be reused later
 // in the TastyObserver implementation without dead-locking.
-static void _remove_observer(id self, id observer)
+static void _remove_observer(id target, id observer, BOOL mutual)
 {
-    _remove_observation_target(observer, self);
+    if (mutual)
+        _remove_observation_target(observer, target);
 
     NSMutableDictionary *observerDict =
-                   objc_getAssociatedObject(self, kTastyKVOAssociatedDictKey);
+                   objc_getAssociatedObject(target, kTastyKVOAssociatedDictKey);
     NSValue *ptr = [NSValue valueWithPointer:observer];
     [observerDict removeObjectForKey:ptr];
 
     // Due to a bug in the obj-c runtime, this dictionary does not get
     // cleaned up on release when running without GC.
     if ([observerDict count] == 0)
-        objc_setAssociatedObject(self,
+        objc_setAssociatedObject(target,
                                  kTastyKVOAssociatedDictKey,
                                  nil,
                                  OBJC_ASSOCIATION_RETAIN);
@@ -354,19 +399,29 @@ static void _remove_observer(id self, id observer)
 - (void)removeAllTastyObservers
 {
     dispatch_sync(_lock_queue(), ^{
+        //*
         NSMutableDictionary *observerDict =
                    objc_getAssociatedObject(self, kTastyKVOAssociatedDictKey);
 
-        NSArray *pointers = [observerDict allKeys];
-        for (NSValue *ptr in pointers)
-            _remove_observer(self, [ptr pointerValue]);
+        for (NSValue *ptr in [observerDict allKeys])
+            _remove_observer(self, [ptr pointerValue], YES);
+        /*/
+        // Isn't it a simpler approach?
+        // The _remove_observation_target is called automatically in the
+        // TastyObserverTrampoline's dealloc.
+        // However, this does not work. Possibly due to a bug in the runtime
+        objc_setAssociatedObject(self,
+                                 kTastyKVOAssociatedDictKey,
+                                 nil,
+                                 OBJC_ASSOCIATION_RETAIN);
+        //*/
     });
 }
 
 - (void)removeTastyObserver:(id)observer
 {
     dispatch_sync(_lock_queue(), ^{
-        _remove_observer(self, observer);
+        _remove_observer(self, observer, YES);
     });
 }
 
@@ -391,7 +446,7 @@ static void _remove_observer(id self, id observer)
         for (NSString *key in keys)
             [dict removeObjectForKey:key];
         if ([dict count] == 0)
-            _remove_observer(self, observer);
+            _remove_observer(self, observer, YES);
     });
 }
 
@@ -424,19 +479,11 @@ static void _remove_observer(id self, id observer)
 - (void)stopObservingAllTargets
 {
     dispatch_sync(_lock_queue(), ^{
-        NSMutableSet *set =
-                 objc_getAssociatedObject(self, kTastyKVOAssociatedTargetKey);
-        if (set) {
-            // Make a copy of all objects because the set will be modified
-            // inside the loop.
-            NSArray *targets = [set allObjects];
-            for (NSValue *val in targets) {
-                id target = [val nonretainedObjectValue];
-                _remove_observer(target, self);
-            }
-            NSAssert(objc_getAssociatedObject(self, kTastyKVOAssociatedTargetKey) == nil,
-                     @"Not all targets have been removed from observation");
-        }
+        NSMutableSet *set = objc_getAssociatedObject(self, kTastyKVOAssociatedTargetKey);
+        for (NSValue *ptr in [set allObjects])
+            _remove_observer([ptr pointerValue], self, YES);
+        [set removeAllObjects];
+        objc_setAssociatedObject(self, kTastyKVOAssociatedTargetKey, nil, OBJC_ASSOCIATION_RETAIN);
     });
 }
 
